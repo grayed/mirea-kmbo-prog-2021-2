@@ -5,14 +5,14 @@
 
 #include <common.h>
 
-/// typedef std::map<std::string, float> weight_map;    /// название вершины -> вес ребра к этой вершине
-/// typedef std::map<std::string, weight_map> graph;    /// название вершины -> набор вершин, в которые можно попасть из данной
+/// typedef std::map<std::string, float> weight_map;    /// РЅР°Р·РІР°РЅРёРµ РІРµСЂС€РёРЅС‹ -> РІРµСЃ СЂРµР±СЂР° Рє СЌС‚РѕР№ РІРµСЂС€РёРЅРµ
+/// typedef std::map<std::string, weight_map> graph;    /// РЅР°Р·РІР°РЅРёРµ РІРµСЂС€РёРЅС‹ -> РЅР°Р±РѕСЂ РІРµСЂС€РёРЅ, РІ РєРѕС‚РѕСЂС‹Рµ РјРѕР¶РЅРѕ РїРѕРїР°СЃС‚СЊ РёР· РґР°РЅРЅРѕР№
 
 float DLL_EXPORT shortest_length(const graph &graph, const std::string &src, const std::string &dst) {
     std::map<std::string, float> labels;
     std::set<std::string> tovisit;
 
-    /// Проставить метки
+    /// РџСЂРѕСЃС‚Р°РІРёС‚СЊ РјРµС‚РєРё
     for (const auto &kv : graph) {
         if (kv.first == src)
             labels[kv.first] = 0;
@@ -22,15 +22,15 @@ float DLL_EXPORT shortest_length(const graph &graph, const std::string &src, con
     }
 
     while (tovisit.size() > 0) {
-        /// 1. Выбираем не посещённую вершину с наименьшей меткой
+        /// 1. Р’С‹Р±РёСЂР°РµРј РЅРµ РїРѕСЃРµС‰С‘РЅРЅСѓСЋ РІРµСЂС€РёРЅСѓ СЃ РЅР°РёРјРµРЅСЊС€РµР№ РјРµС‚РєРѕР№
         auto vi = std::min_element(tovisit.begin(), tovisit.end(),
                    [labels](const std::string &v1, const std::string &v2) { return labels.at(v1) < labels.at(v2); });
-        /// 2. Вычисляем метки для соседей, для каждого соседа записываем вычисленную метку, если она меньше существующей
+        /// 2. Р’С‹С‡РёСЃР»СЏРµРј РјРµС‚РєРё РґР»СЏ СЃРѕСЃРµРґРµР№, РґР»СЏ РєР°Р¶РґРѕРіРѕ СЃРѕСЃРµРґР° Р·Р°РїРёСЃС‹РІР°РµРј РІС‹С‡РёСЃР»РµРЅРЅСѓСЋ РјРµС‚РєСѓ, РµСЃР»Рё РѕРЅР° РјРµРЅСЊС€Рµ СЃСѓС‰РµСЃС‚РІСѓСЋС‰РµР№
         for (const auto &neighbor : graph.at(*vi)) {
             if (!tovisit.find(neighbor.first))
                 continue;
-            /// neighbor.first - имя соседней вершины
-            /// neighbor.second - расстояние до соседней вершины
+            /// neighbor.first - РёРјСЏ СЃРѕСЃРµРґРЅРµР№ РІРµСЂС€РёРЅС‹
+            /// neighbor.second - СЂР°СЃСЃС‚РѕСЏРЅРёРµ РґРѕ СЃРѕСЃРµРґРЅРµР№ РІРµСЂС€РёРЅС‹
 
             labels[neighbor.first] = std::min(labels[*vi] + neighbor.second, labels[neighbor.first]);
         }

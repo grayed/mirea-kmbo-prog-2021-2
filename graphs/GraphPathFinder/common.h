@@ -11,8 +11,10 @@
     #define DLL_EXPORT __declspec(dllimport)
 #endif
 
-typedef std::map<std::string, float> weight_map;    /// название вершины -> вес ребра к этой вершине
-typedef std::map<std::string, weight_map> graph;    /// название вершины -> набор вершин, в которые можно попасть из данной
+typedef std::map<std::string, float> weight_map;    /// РЅР°Р·РІР°РЅРёРµ РІРµСЂС€РёРЅС‹ -> РІРµСЃ СЂРµР±СЂР° Рє СЌС‚РѕР№ РІРµСЂС€РёРЅРµ
+typedef std::map<std::string, weight_map> graph;    /// РЅР°Р·РІР°РЅРёРµ РІРµСЂС€РёРЅС‹ -> РЅР°Р±РѕСЂ РІРµСЂС€РёРЅ, РІ РєРѕС‚РѕСЂС‹Рµ РјРѕР¶РЅРѕ РїРѕРїР°СЃС‚СЊ РёР· РґР°РЅРЅРѕР№
+
+/// std::string (РёСЃС…РѕРґРЅР°СЏ РІРµСЂС€РёРЅР°) -> std::string (РєРѕРЅРµС‡РЅР°СЏ РІРµСЂС€РёРЅР°) -> float (РІРµСЃ СЂРµР±СЂР°)
 
 float DLL_EXPORT shortest_length(const graph &graph, const std::string &src, const std::string &dst);
 
