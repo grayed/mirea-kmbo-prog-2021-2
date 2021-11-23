@@ -9,12 +9,26 @@ using namespace std;
 /// вершина -> { вершина -> вес }
 
 
-graph build_graph(const std::istream &is) {
+graph build_graph(std::istream &is) {
     /// TODO 1
     /// считываем строчку ребра; берём из неё названия начальной и конечной вершин ребра, а также вес ребра
-    /// проверяем, существует ли исходная вершина; если нет - добавляем; если да, используем имеющуюся
+    std::string src = ""; /// исходная вершина
+    std::string dst = ""; /// конечная вершина
+    float weight = 0;    /// вес ребра src-dst
+
+    is >> src;
+
+    graph graph;
+
     /// проверяем, существует ли конечная вершина; если нет - добавляем; если да, используем имеющуюся
+    graph.insert(std::pair<std::string, weight_map>(dst, weight_map()));
+
+    /// проверяем, существует ли исходная вершина; если нет - добавляем; если да, используем имеющуюся
+    std::pair<graph::iterator, bool> insres = graph.insert(std::pair<std::string, weight_map>(dst, weight_map()));
+
     /// добавляем запись про конечную вершину и вес в исходную
+    insres.first->second.insert(std::pair<std::string, float>(dst, weight));
+
     /// переходим к следующей строке
 }
 
@@ -49,7 +63,7 @@ int main(int argc, char **argv)
 
     /// 3. Вызвать функцию поиска пути
     ///     в библиотеке
-    auto result = shortest_length(graph, src_it->second, dst_it->second);
+    auto result = shortest_length(graph, src_it->first, dst_it->first);
 
     /// 4. Вывести результат
     cout << result << endl;

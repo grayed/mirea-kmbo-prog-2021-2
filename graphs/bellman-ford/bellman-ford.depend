@@ -1,0 +1,9 @@
+# depslib dependency file v1.0
+1637663797 source:c:\users\user\source\repos\mirea-kmbo-prog-2021-2\graphs\bellman-ford\main.cpp
+	<common.h>
+
+1637663791 c:\users\user\source\repos\mirea-kmbo-prog-2021-2\graphs\graphpathfinder\common.h
+	<windows.h>
+	<map>
+	<string>
+
