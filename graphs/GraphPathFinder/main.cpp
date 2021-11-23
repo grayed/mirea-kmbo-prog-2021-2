@@ -16,9 +16,12 @@ graph build_graph(std::istream &is) {
     std::string dst = ""; /// конечная вершина
     float weight = 0;    /// вес ребра src-dst
 
-    is >> src;
-
     graph graph;
+
+    /// цикл до конца входного потока данных
+
+    /// FIXME лучше через is.get_line()
+    is >> src >> dst >> weight;
 
     /// проверяем, существует ли конечная вершина; если нет - добавляем; если да, используем имеющуюся
     graph.insert(std::pair<std::string, weight_map>(dst, weight_map()));

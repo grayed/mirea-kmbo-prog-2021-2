@@ -27,8 +27,9 @@ float DLL_EXPORT shortest_length(const graph &graph, const std::string &src, con
                    [labels](const std::string &v1, const std::string &v2) { return labels.at(v1) < labels.at(v2); });
         /// 2. Вычисляем метки для соседей, для каждого соседа записываем вычисленную метку, если она меньше существующей
         for (const auto &neighbor : graph.at(*vi)) {
-            if (!tovisit.find(neighbor.first))
-                continue;
+            if (tovisit.find(neighbor.first) == tovisit.end())
+                continue;   /// вершина уже была посещена
+
             /// neighbor.first - имя соседней вершины
             /// neighbor.second - расстояние до соседней вершины
 
