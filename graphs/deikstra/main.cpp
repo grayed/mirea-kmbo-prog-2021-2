@@ -8,12 +8,14 @@
 /// typedef std::map<std::string, float> weight_map;    /// название вершины -> вес ребра к этой вершине
 /// typedef std::map<std::string, weight_map> graph;    /// название вершины -> набор вершин, в которые можно попасть из данной
 
-float DLL_EXPORT shortest_length(const graph &graph, const std::string &src, const std::string &dst) {
-    std::map<std::string, float> labels;
-    std::set<std::string> tovisit;
+float DLL_EXPORT shortest_length(const graph& graph, const std::string& src, const std::string& dst)
+{
+    std::map<std::string, float> labels; /// вес вершин
+    std::set<std::string> tovisit; /// вершины, которые нужно посетить
 
     /// Проставить метки
-    for (const auto &kv : graph) {
+    for (const auto& kv : graph)
+    {
         if (kv.first == src)
             labels[kv.first] = 0;
         else
@@ -21,12 +23,15 @@ float DLL_EXPORT shortest_length(const graph &graph, const std::string &src, con
         tovisit.insert(kv.first);
     }
 
-    while (tovisit.size() > 0) {
+    /// пока не стал редачить, но такая штука работает только со связным графом
+    while (tovisit.size() > 0)
+    {
         /// 1. Выбираем не посещённую вершину с наименьшей меткой
         auto vi = std::min_element(tovisit.begin(), tovisit.end(),
-                   [labels](const std::string &v1, const std::string &v2) { return labels.at(v1) < labels.at(v2); });
+            [labels](const std::string& v1, const std::string& v2) { return labels.at(v1) < labels.at(v2); });
         /// 2. Вычисляем метки для соседей, для каждого соседа записываем вычисленную метку, если она меньше существующей
-        for (const auto &neighbor : graph.at(*vi)) {
+        for (const auto& neighbor : graph.at(*vi))
+        {
             if (tovisit.find(neighbor.first) == tovisit.end())
                 continue;   /// вершина уже была посещена
 
@@ -35,9 +40,9 @@ float DLL_EXPORT shortest_length(const graph &graph, const std::string &src, con
 
             labels[neighbor.first] = std::min(labels[*vi] + neighbor.second, labels[neighbor.first]);
         }
+        tovisit.erase(vi);
     }
-
-    return 0;
+    return labels.at(dst);
 }
 
 extern "C" DLL_EXPORT BOOL APIENTRY DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
