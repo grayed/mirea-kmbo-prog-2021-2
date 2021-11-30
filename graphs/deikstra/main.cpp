@@ -9,35 +9,35 @@
 /// typedef std::map<std::string, weight_map> graph;    /// название вершины -> набор вершин, в которые можно попасть из данной
 
 float DLL_EXPORT shortest_length(const graph &graph, const std::string &src, const std::string &dst) {
-    std::map<std::string, float> labels;
-    std::set<std::string> tovisit;
+    auto search = graph.find(src);	//проверяем наличие вершины в графе 
+	auto search2 = graph.find(dst);
+	if (search == graph.end() || search2 == graph.end())
+		return -1;
 
-    /// Проставить метки
-    for (const auto &kv : graph) {
-        if (kv.first == src)
-            labels[kv.first] = 0;
-        else
-            labels[kv.first] = std::numeric_limits<float>::infinity();
-        tovisit.insert(kv.first);
-    }
+	std::map<std::string, float> d;
+	std::map<std::string, bool> used;
+	for (const auto& g : graph) {
+		used.insert({ g.first, false });
+		d.insert({ g.first, INF });
+	}
+	d[src] = 0;
+	std::string temp;
+	for (const auto& g : graph) {
+		float min = INF;
+		for (const auto& w : g.second)
+			if (!used[w.first] && d[w.first] < min) {
+				min = d[w.first];
+				temp = w.first;
+			}
+		used[temp] = true;
 
-    while (tovisit.size() > 0) {
-        /// 1. Выбираем не посещённую вершину с наименьшей меткой
-        auto vi = std::min_element(tovisit.begin(), tovisit.end(),
-                   [labels](const std::string &v1, const std::string &v2) { return labels.at(v1) < labels.at(v2); });
-        /// 2. Вычисляем метки для соседей, для каждого соседа записываем вычисленную метку, если она меньше существующей
-        for (const auto &neighbor : graph.at(*vi)) {
-            if (tovisit.find(neighbor.first) == tovisit.end())
-                continue;   /// вершина уже была посещена
-
-            /// neighbor.first - имя соседней вершины
-            /// neighbor.second - расстояние до соседней вершины
-
-            labels[neighbor.first] = std::min(labels[*vi] + neighbor.second, labels[neighbor.first]);
-        }
-    }
-
-    return 0;
+		for (const auto& w : g.second)
+			if (w.second != -1 && !used[w.first] && d[temp] + w.second < d[w.first])
+				d[w.first] = d[temp] + w.second;
+	}
+	if (d[dst] == INF)
+		return -1;
+	return d[dst];
 }
 
 extern "C" DLL_EXPORT BOOL APIENTRY DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
