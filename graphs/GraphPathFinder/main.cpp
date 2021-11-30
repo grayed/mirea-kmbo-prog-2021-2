@@ -8,8 +8,8 @@ using namespace std;
 
 /// вершина -> { вершина -> вес }
 
-
-graph build_graph(std::istream &is) {
+graph build_graph(std::istream& is)
+{
     /// TODO 1
     /// считываем строчку ребра; берём из неё названия начальной и конечной вершин ребра, а также вес ребра
     std::string src = ""; /// исходная вершина
@@ -19,25 +19,29 @@ graph build_graph(std::istream &is) {
     graph graph;
 
     /// цикл до конца входного потока данных
-
+    int n; is >> n;
     /// FIXME лучше через is.get_line() (например, обернув считанную строку в std::stringstream)
-    is >> src >> dst >> weight;
+    for (int i = 0; i < n; i++)
+    {
+        is >> src >> dst >> weight;
 
-    /// проверяем, существует ли конечная вершина; если нет - добавляем; если да, используем имеющуюся
-    graph.insert(std::pair<std::string, weight_map>(dst, weight_map()));
+        /// проверяем, существует ли конечная вершина; если нет - добавляем; если да, используем имеющуюся
+        graph.insert(std::pair<std::string, weight_map>(dst, weight_map()));
 
-    /// проверяем, существует ли исходная вершина; если нет - добавляем; если да, используем имеющуюся
-    std::pair<graph::iterator, bool> insres = graph.insert(std::pair<std::string, weight_map>(dst, weight_map()));
+        /// проверяем, существует ли исходная вершина; если нет - добавляем; если да, используем имеющуюся
+        std::pair<graph::iterator, bool> insres = graph.insert(std::pair<std::string, weight_map>(dst, weight_map()));
 
-    /// добавляем запись про конечную вершину и вес в исходную
-    insres.first->second.insert(std::pair<std::string, float>(dst, weight));
+        /// добавляем запись про конечную вершину и вес в исходную
+        insres.first->second.insert(std::pair<std::string, float>(dst, weight));
+    }
 
-    /// переходим к следующей строке
+    return graph;
 }
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
-    if (argc < 2) {
+    if (argc < 2)
+    {
         cerr << "Need at least 2 points to search" << endl;
         return 1;
     }
@@ -55,11 +59,13 @@ int main(int argc, char **argv)
     auto src_it = graph.find(src_name);
     auto dst_it = graph.find(dst_name);
 
-    if (src_it == graph.end()) {
+    if (src_it == graph.end())
+    {
         cerr << "Unknown source: " << src_name << endl;
         return 1;
     }
-    if (dst_it == graph.end()) {
+    if (dst_it == graph.end())
+    {
         cerr << "Unknown destination: " << dst_name << endl;
         return 1;
     }
