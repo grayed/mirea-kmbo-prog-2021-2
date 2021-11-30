@@ -15,12 +15,29 @@ using namespace std;
 
 template<typename T>
 void copy_array(const T *from, T *to, size_t count) {
-    // TODO
+    copy(from, from + count, to);
 }
 
 template<typename T>
 void print_array(const T *parr, size_t count) {
-    // TODO
+    auto f = [](int n) {cout << n << " "; };
+    for_each(parr, parr + count, f);
+}
+
+template <typename T>
+int min_array(const T* where, size_t count)
+{
+    if (!count) return 0;
+    int min = 0;
+    bool is_found = false;
+    for (auto i = 1; i < count; i++)
+        if (where[i] < where[min])
+        {
+            min = i;
+            is_found = true;
+        }
+    if (!is_found) return -1;
+    return min;
 }
 
 int main(int argc, char **argv) {
