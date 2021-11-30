@@ -10,29 +10,28 @@ using namespace std;
 
 
 graph build_graph(std::istream &is) {
-    /// TODO 1
-    /// считываем строчку ребра; берём из неё названия начальной и конечной вершин ребра, а также вес ребра
-    std::string src = ""; /// исходная вершина
-    std::string dst = ""; /// конечная вершина
-    float weight = 0;    /// вес ребра src-dst
-
+    string src = "";
+    string dst = "";
+    float weight = 0;
     graph graph;
+    while (!is.eof())
+    {
+        is >> src >> dst >> weight;
 
-    /// цикл до конца входного потока данных
+        auto search = g.find(dst);                
+        if (search != g.end())
+        {
+            graph.insert({ dst, weight_map() });
+        }
+        search = g.find(src);
+        if (search != g.end())
+        {
+            graph.insert({ src, weight_map() });
+        }
 
-    /// FIXME лучше через is.get_line() (например, обернув считанную строку в std::stringstream)
-    is >> src >> dst >> weight;
-
-    /// проверяем, существует ли конечная вершина; если нет - добавляем; если да, используем имеющуюся
-    graph.insert(std::pair<std::string, weight_map>(dst, weight_map()));
-
-    /// проверяем, существует ли исходная вершина; если нет - добавляем; если да, используем имеющуюся
-    std::pair<graph::iterator, bool> insres = graph.insert(std::pair<std::string, weight_map>(dst, weight_map()));
-
-    /// добавляем запись про конечную вершину и вес в исходную
-    insres.first->second.insert(std::pair<std::string, float>(dst, weight));
-
-    /// переходим к следующей строке
+        g[src].insert({ dst,weight });
+    }
+    return graph;
 }
 
 int main(int argc, char **argv)
