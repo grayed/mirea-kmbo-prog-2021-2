@@ -1,34 +1,50 @@
-#include <cstdint>
 #include <iostream>
+#include <cstdint>
 #include <cstdlib>
-
-// Домашнее задание:
-//
-// 1. Дореализовать copy_array() и print_array()
-//
-// 2. Реализовать функцию поиска минимума в заданном массиве:
-//       const T *where, size_t count, const T &what
-//     Должна возвращать индекс найденного элемента (-1 если не найден,
-//     но 0 для пустого массива).
-
+#include <ctime>
+#include <algorithm>
 using namespace std;
 
 template<typename T>
-void copy_array(const T *from, T *to, size_t count) {
-    // TODO
+void copy_array(const T *from, T *to, size_t count){
+    while (count--)
+        *to++=*from++;
 }
 
 template<typename T>
-void print_array(const T *parr, size_t count) {
-    // TODO
+void print_array(const T *parr, size_t count){
+    while (count--)
+        cout<<*parr++<<" ";
+    cout<<endl;
 }
 
-int main(int argc, char **argv) {
+template<typename T>
+T find_min(const T *where, size_t count){
+    if (count==0)
+        return 0;
+    T min=where[0];
+    while (count--){
+        if (*where<min)
+            min=*where;
+        *where++;
+    }
+    return min;
+}
+
+int main(){
+    srand(time(NULL));
     int arr[20], arr2[20];
-    for (auto i = 0; i < sizeof(arr)/sizeof(arr[0]); i++)
-        arr[i] = rand();
-    copy_array(arr, arr2, sizeof(arr)/sizeof(arr[0]));
-    print_array(arr, sizeof(arr)/sizeof(arr[0]));
-    print_array(arr2, sizeof(arr2)/sizeof(arr2[0]));
-    return 0;
+    for (auto i=0; i<sizeof(arr)/sizeof(arr[0]); i++)
+        arr[i]=rand()%100;
+    copy(arr,arr+sizeof(arr2)/sizeof(arr[0]),arr2);
+    
+    auto f=[](int n) {cout<<n<<" ";};
+    for_each(arr,arr+sizeof(arr2)/sizeof(arr[0]),f);
+    cout<<endl;
+    
+    print_array(arr2,sizeof(arr2)/sizeof(arr[0]));
+    cout<<find_min(arr2,sizeof(arr2)/sizeof(arr[0]));
+    
+    char c; cin >> c;
+	return 0;
 }
