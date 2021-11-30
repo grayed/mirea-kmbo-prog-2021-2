@@ -1,65 +1,54 @@
+#include "pch.h"
+
+#include <iostream>
+#include <fstream>
+#include <typeinfo>
+#include <string>
 #include <algorithm>
 #include <limits>
 #include <map>
 #include <set>
+#include<vector>
 
-#include <common.h>
+#include "..\\Project1\common.h"
 
-/// typedef std::map<std::string, float> weight_map;    /// название вершины -> вес ребра к этой вершине
-/// typedef std::map<std::string, weight_map> graph;    /// название вершины -> набор вершин, в которые можно попасть из данной
+using namespace std;
 
-float DLL_EXPORT shortest_length(const graph &graph, const std::string &src, const std::string &dst) {
-    std::map<std::string, float> labels;
-    std::set<std::string> tovisit;
+float shortest_length(const graph& graph, const std::string& src, const std::string& dst) {
+    map<string, float> labels;
+    set<string> tovisit;
 
     /// Проставить метки
-    for (const auto &kv : graph) {
-        if (kv.first == src)
+    for (const auto& kv : graph) {
+        if (kv.first == src) {
             labels[kv.first] = 0;
+            tovisit.insert(kv.first);
+        } 
         else
             labels[kv.first] = std::numeric_limits<float>::infinity();
-        tovisit.insert(kv.first);
+        //tovisit.insert(kv.first);
     }
-
+    // за O(ElogV)
     while (tovisit.size() > 0) {
         /// 1. Выбираем не посещённую вершину с наименьшей меткой
         auto vi = std::min_element(tovisit.begin(), tovisit.end(),
-                   [labels](const std::string &v1, const std::string &v2) { return labels.at(v1) < labels.at(v2); });
+            [labels](const std::string& v1, const std::string& v2) { return labels.at(v1) < labels.at(v2); });
+        tovisit.erase(*vi);
         /// 2. Вычисляем метки для соседей, для каждого соседа записываем вычисленную метку, если она меньше существующей
-        for (const auto &neighbor : graph.at(*vi)) {
+        for (const auto& neighbor : graph.at(*vi)) {
             if (tovisit.find(neighbor.first) == tovisit.end())
                 continue;   /// вершина уже была посещена
 
             /// neighbor.first - имя соседней вершины
             /// neighbor.second - расстояние до соседней вершины
+            if (labels[neighbor.first] > labels[*vi] + neighbor.second) {
+                tovisit.erase(neighbor.first);
+                labels[neighbor.first] = labels[*vi] + neighbor.second;
+                tovisit.insert(neighbor.first);
+            }
 
-            labels[neighbor.first] = std::min(labels[*vi] + neighbor.second, labels[neighbor.first]);
         }
     }
 
     return 0;
-}
-
-extern "C" DLL_EXPORT BOOL APIENTRY DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
-{
-    switch (fdwReason)
-    {
-        case DLL_PROCESS_ATTACH:
-            // attach to process
-            // return FALSE to fail DLL load
-            break;
-
-        case DLL_PROCESS_DETACH:
-            // detach from process
-            break;
-
-        case DLL_THREAD_ATTACH:
-            // attach to thread
-            break;
-
-        case DLL_THREAD_DETACH:
-            // detach from thread
-            break;
-    }
-    return TRUE; // succesful
 }
