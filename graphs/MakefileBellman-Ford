@@ -1,0 +1,11 @@
+CXX=c++
+CXXFLAGS=-std=c++11
+SOURCE=GraphPathFinder.cpp
+PROGNAME=GraphPathFinder
+LIBNAME=bellman-ford
+LIBPATH=$(shell pwd)/bellman-ford/
+
+.PHONY: all clean
+
+all:
+	$(CXX) $(SOURCE) -o $(PROGNAME) -L$(LIBPATH) -l$(LIBNAME) $(CXXFLAGS)

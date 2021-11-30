@@ -1,30 +1,34 @@
-#include <common.h>
+#include "../common.h"
 
-float DLL_EXPORT shortest_length(const graph &graph, const std::string &src, const std::string &dst) {
-    /// TODO
-    return 0;
-}
+#include <string>
+#include <map>
+#include <cfloat>
 
-extern "C" DLL_EXPORT BOOL APIENTRY DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
+using namespace std;
+
+extern "C" float shortest_length(graph& g, const std::string& src, 
+        const std::string& dst)
 {
-    switch (fdwReason)
-    {
-        case DLL_PROCESS_ATTACH:
-            // attach to process
-            // return FALSE to fail DLL load
-            break;
-
-        case DLL_PROCESS_DETACH:
-            // detach from process
-            break;
-
-        case DLL_THREAD_ATTACH:
-            // attach to thread
-            break;
-
-        case DLL_THREAD_DETACH:
-            // detach from thread
-            break;
+    const float INF = FLT_MAX;
+    map<string, float> dist;
+    for (auto it = g.begin(); it != g.end(); it++) {
+        dist[it->first] = INF;
     }
-    return TRUE; // succesful
+    dist[src] = 0;
+
+    for (size_t k = 0; k < g.size() - 1; k++) {
+        for (auto it = g.begin(); it != g.end(); it++) {
+            string v = it->first;
+            for (auto& e : it->second) {
+                string u = e.first;
+                float w = e.second;
+                if (dist[v] < INF) {
+                    dist[u] = min(dist[u], dist[v] + w);
+                }
+            }
+        }
+    }
+
+    return dist[dst];
 }
+
