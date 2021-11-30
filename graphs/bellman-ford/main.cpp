@@ -1,7 +1,6 @@
 #include <common.h>
 
-float DLL_EXPORT shortest_length(const graph& graph, const std::string src, const std::string dst)
-{
+float DLL_EXPORT shortest_length(const graph& graph, const std::string src, const std::string dst) {
     if (graph.find(src) == graph.end() || graph.find(dst) == graph.end())
         return -1; //если таких вершин нет
 
@@ -15,7 +14,7 @@ float DLL_EXPORT shortest_length(const graph& graph, const std::string src, cons
                 path[to.first] = min(path[to.first], path[g.first] + to.second);
     }
 
-    if (path[dst] == 1e9) return -1;
+    if (path[dst] == std::numeric_limits<float>::infinity()) return -1;
     return path[dst];
 }
 
