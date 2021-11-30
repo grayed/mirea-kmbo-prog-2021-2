@@ -7,35 +7,30 @@ const int INF = 1000000000;
 float shortest_length(const graph& graph, const std::string& src, const std::string& dst)
 {
 
-	std::map<std::string,float> a;
-	std::map<std::string, bool> u;
+	std::map<std::string, float> a;
 	for (auto i : graph)
 	{
 		a.insert({ i.first,INF });
-		a.insert({ i.first,false });
 	}
 	a[src] = 0;
-	for (auto i : graph)
+	for (;;)
 	{
-		std::string v = "new";
-		weight_map  d;
-		for (auto j : i.second)
-			if (u[j.first] == false && (v == "new" || a[j.first] < a[v]))
-			{
-				v = j.first;
-				d[v] = j.second;
-			}
-
-		if (a[v] == INF)
-			break;
-		u[v] = true;
-
-		for (auto k : d)
+		bool any = false;
+		for (auto i : graph)
 		{
-			std::string to = k.first;
-			float len = k.second;
-			a[to] = min(a[v] + len, a[to]);
+			for (auto j : i.second)
+			{
+				if (a[j.first] > a[i.first] + j.second)
+				{
+					a[j.first] = a[i.first] + j.second;
+					any = true;
+				}
+			}
 		}
+		if (!any)
+			break;
 	}
+	if (a[dst] == INF)
+		return 0;
 	return a[dst];
 }
