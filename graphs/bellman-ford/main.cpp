@@ -1,30 +1,34 @@
-#include <common.h>
+#include "pch.h"
+#include <map>
+const int INF = 1000000000;
 
-float DLL_EXPORT shortest_length(const graph &graph, const std::string &src, const std::string &dst) {
-    /// TODO
-    return 0;
-}
-
-extern "C" DLL_EXPORT BOOL APIENTRY DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
+float shortest_length(const graph& graph, const std::string& src, const std::string& dst)
 {
-    switch (fdwReason)
-    {
-        case DLL_PROCESS_ATTACH:
-            // attach to process
-            // return FALSE to fail DLL load
-            break;
 
-        case DLL_PROCESS_DETACH:
-            // detach from process
-            break;
-
-        case DLL_THREAD_ATTACH:
-            // attach to thread
-            break;
-
-        case DLL_THREAD_DETACH:
-            // detach from thread
-            break;
-    }
-    return TRUE; // succesful
+	std::map<std::string, float> a;
+	for (auto i : graph)
+	{
+		a.insert({ i.first,INF });
+	}
+	a[src] = 0;
+	for (;;)
+	{
+		bool any = false;
+		for (auto i : graph)
+		{
+			for (auto j : i.second)
+			{
+				if (a[j.first] > a[i.first] + j.second)
+				{
+					a[j.first] = a[i.first] + j.second;
+					any = true;
+				}
+			}
+		}
+		if (!any)
+			break;
+	}
+	if (a[dst] == INF)
+		return 0;
+	return a[dst];
 }
