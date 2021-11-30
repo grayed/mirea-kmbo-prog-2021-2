@@ -1,141 +1,164 @@
 #include <iostream>
 #include <vector>
-
-using namespace std;
-
-///
-/// Домашнее задание:
-///
-/// 1. Реализовать добавление и удаление узлов в бинарную кучу.
-/// 2. Реализовать итератор, проходящий от самой левой до самой правой вершины дерева.
-/// 3. Написать юнит-тесты для всех перечисленных выше задач.
-///
-
+#include <algorithm>
 
 template<class T>
-class HeapOverArray {
+class HeapOverArray
+{
     std::vector<T> v;
-
 public:
     HeapOverArray() {}
-    HeapOverArray(const std::vector<T> &initv) : v(initv) {}    /// Требуется, чтобы массив был заранее упорядочен
 
     const std::vector<T>& getVector() const { return v; }
 
-    /// Если такой элемент уже существует, то изменения не вносятся, а функция возвращает false.
-    /// Если элемент добавлен, то функция возвращает true.
-    bool addNode(const T& o) {
-        /// 1. Определяем место вставки (первое свободное место в нижнем горизонтальном ряду).
-        /// 2. Сравниваем с родителем, если значение больше родительского, меняем местами с родителем (в цикле).
+    // true, если такого элемента нет, иначе false
+    // в моей реализации такой проверки нет, так что
+    // пока никакой проверки нет, так что будем надеяться на умного пользователя,
+    // который вносит только разные значения
+    bool addNode(const T& o)
+    {
+        // 1. Определем место вставки (первое свободное место в горизонтальном ряду)
+        // 2. Сравниваем с родителем, если значение больше родительского, меняем его местами с родителем (в цикле).
 
         size_t pos = v.size();
-        if (pos == 0) {
-            /// дерево было пустое
-            /// TODO
+        v.push_back(o);
+        if (pos == 0)
+        {
+            // дерево было пустое
             return true;
         }
         size_t parent_pos = (pos + 1) / 2 - 1;
-        /// TODO
-	return true;
+        // я так понимаю мы получили, что pos соответсвтует последнему элементу в массиве
+        // далее берем + 1 тк нужен номер элемента, далее делим на 2 и получаем номер родителя
+        // далее вычитаем 1 чтобы получить какому индексу в массиве соответствует родитель
+        while (parent_pos >= 0 && v[pos] > v[parent_pos])
+        {
+            std::swap(v[pos], v[parent_pos]);
+            // v[pose] это наш элемент o
+
+            pos = parent_pos;
+            parent_pos = (pos + 1) / 2 - 1;
+        }
+        // закомментил тк это не надо
+        // if (pos == 0) return true; // мы в корне
+        // if (pos == v.size() - 1)  return true; // даже если мы слева, то справа ничего нет
+        // if (pos % 2 == 1) return true; // мы справа
+        // // осталось что мы слева и не в конце, значит право есть
+        // if (v[pos] > v[pos + 1]) std::swap(v[pos, v[pos + 1]]);
+        return true;
     }
 
-    bool removeNode(const T& o) {
-	/// TODO
+    bool removeNode(const T& o)
+    {
+        // найдем этот элемент и его индекс
+        size_t index = 0;
+        while (index < v.size() && v[index] != o)
+            index++;
+        
+        if (index == v.size())
+        {
+            // случай где такого элемента просто нет
+            return false;
+        }
+        v[index] = v[v.size() - 1];
+        v.pop_back(); // удалили элемент
 
-        /// Если мы удаляем последний элемент из кучи, то просто обрезаем массив.
-        /// В ином случае меняем местами последний элемент из кучи с удаляемым, обрезаем массив, а затем восстанавливаем
-        /// целостность кучи.
+        // теперь надо этот элемент поставить куда надо
+        // сначала посмотрим, если он больше родителя
+        size_t pos = index + 1, parent_pos = pos / 2;
+        while (parent_pos > 0 && v[pos - 1] > v[parent_pos - 1])
+        {
+            std::swap(v[pos - 1], v[parent_pos - 1]);
+            
+            // мы свапаем с родителем
+            // если мы слева, то ничего делать не надо
+            // если мы справа, то надо свапнуть правый и левый
+            if (pos % 2 == 0 && pos != v.size() && ) std::swap(v[pos - 1], v[pos]);
 
-        v.pop_back();   /// удаляет последний элемент
+            pos = parent_pos;
+            parent_pos = pos / 2;
+        }
+        // теперь аналогично с ребенком
+        size_t child_pos = pos * 2;
+        while (child_pos <= v.size() && v[pos - 1] < v[child_pos - 1])
+        {
+
+        }
+        return true;
     }
-
-    class iterator {
+    class iterator
+    {
         std::vector<T> *v;
         size_t idx;
 
     public:
-        iterator() : v(nullptr) {}
+        iterator : v(nullptr) {}
         iterator(std::vector<T> *v_, size_t idx_) : v(v_), idx(idx_) {}
 
-        ///
-        /// 100
-        ///  70          60
-        ///  25    10    40     5
-        ///   8  2  9  1  3
-        ///
-        /// 100 70 60 25 10 40 5 8 2 9 1 3
-        ///
+        iterator& operator++()
+        {
+            /// 1. узнаем высоту элемента
+            /// 2. узнаем, слева он или справа
 
-        iterator& operator++() {
-            /// 1. Узнаём высоту элемента
-            /// 2. Узнаём, слева мы или справа
+            /// если двигаемся вверх (если нет дочернего элемента справа),
+            /// делим номер в дереве пополам.
+            /// затем отбрасывая дробную часть, в цикле пока не дойдем до четного элемента
+            /// затем еще раз делим номер пополам
+            ///
+            /// если двигаемся вниз, то: 1) увеличиваем номер в 2 раза и прибавляем 1
+            /// 2) пока есть дечерние элементы, увеличиваем номер в 2 раза
+            ///
+            /// если двигаться некуда, превращаем итератор в невалидный путем зануления v
+            ///
+            /// лист == номер элемента, умноженный в 2 раза, меньше количесвта элементов в дереве
 
-            /// Если двигаемся вверх (если нет дочернего элемента справа),
-            /// делим номер в дереве пополам,
-            /// затем отбрасывая дробную часть, в цикле пока не дойдём до чётного элемента,
-            /// затем ещё раз делим номер пополам.
-            ///
-            /// Если двигаемся вниз, то: 1) увеличиваем номер в 2 раза и прибавляем 1;
-            /// 2) пока есть дочерние элементы, увеличиваем номер в 2 раза.
-            ///
-            /// Если двинуться некуда, превращаем итератор в невалидный путём зануления v.
-            ///
-            /// Лист IFF номер элемента, умноженный в 2 раза, меньше количества элементов в дереве
+
+
 
             return *this;
         }
 
-        iterator operator++(int) {
+        iterator operator++(int)
+        {
             auto prev = *this;
             ++(*this);
             return prev;
         }
 
-        operator bool() const { return v != nullptr; }
-        /// Теперь можно писать так:
-        ///
-        /// HeapOverArray::iterator iter;
-        /// if (iter) { /* ... */ }
-        ///
-        /// HeapOverArray heap;
-        /// for (auto it = heap.begin(); it; it++) { /* ... */ }
-
+        bool operator bool() const { return v != nullptr; }
+        
         const T& operator*() const { return v[idx]; }
         T& operator*() { return v[idx]; }
-    };
-
-    iterator begin() {
-        if (v.empty())
-            return iterator();
-        /// От корня двигаемся влево до упора
-        /// TODO
     }
-
-    iterator end() { return iterator(); }
-
-    ///   #1 #2 #3 #4
-    ///    7  3  4
-    ///    7  3  4  8
-    ///    7  8  4  3
-    ///    8  7  4  3
-    ///    8  4  7  3
 };
 
 template<class T>
-bool testHeapAdd(const std::vector<T> &initial, const T &value, const std::vector<T> &expected) {
+bool testHeapAdd(const std::vector<T> &initial, const T &value, const std::vector<T> &expected)
+{
     HeapOverArray<T> heap(initial);
     heap.addNode(value);
     auto v = heap.getVector();
-    if (v.size() != expected.size()) {
-        std::cerr << "size difference: expected " << expected.size() << ", got " << v.size() << std::endl;
+    if (v.size() != expected.size())
+    {
+        std::cerr << "size difference^ expected " << expected.size() << ", got " << v.size() << std::endl;
         return false;
     }
     for (size_t i = 0; i < expected.size(); i++)
-        if (v[i] != expected[i]) {
-            std::cerr << "difference in " << i << ": expected " << expected[i] << ", got " << v[i] << std::endl;
+        if (v[i] != expected[i])
+        {
+            std::cerr << "differencein " << i << ": expected " << expected[i] << ", got " << v[i] << std::endl;
             return false;
         }
     return true;
+}
+
+int main()
+{
+    std::vector<int> initial = { 7, 3, 4 };
+    std::vector<int> expected = { 8, 4, 7, 3 };
+    testHeapAdd(initial, 8, expected);
+    system("pause");
+    return 0;
 }
 
 int main()
