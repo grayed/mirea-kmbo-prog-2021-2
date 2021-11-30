@@ -1,65 +1,39 @@
-#include <algorithm>
-#include <limits>
+#include "../common.h"
+#include "../../binary-heap.cpp"
+
+#include <iostream>
 #include <map>
-#include <set>
+#include <cfloat>
 
-#include <common.h>
+using namespace std;
 
-/// typedef std::map<std::string, float> weight_map;    /// название вершины -> вес ребра к этой вершине
-/// typedef std::map<std::string, weight_map> graph;    /// название вершины -> набор вершин, в которые можно попасть из данной
-
-float DLL_EXPORT shortest_length(const graph &graph, const std::string &src, const std::string &dst) {
-    std::map<std::string, float> labels;
-    std::set<std::string> tovisit;
-
-    /// Проставить метки
-    for (const auto &kv : graph) {
-        if (kv.first == src)
-            labels[kv.first] = 0;
-        else
-            labels[kv.first] = std::numeric_limits<float>::infinity();
-        tovisit.insert(kv.first);
+extern "C" float shortest_length(graph& g, const std::string& src,
+        const std::string& dst)
+{
+    const float INF = FLT_MAX;
+    HeapOverArray<pair<float, string>> heap;
+    map<string, float> dist;
+    for (auto it = g.begin(); it != g.end(); it++) {
+        dist[it->first] = INF;
     }
-
-    while (tovisit.size() > 0) {
-        /// 1. Выбираем не посещённую вершину с наименьшей меткой
-        auto vi = std::min_element(tovisit.begin(), tovisit.end(),
-                   [labels](const std::string &v1, const std::string &v2) { return labels.at(v1) < labels.at(v2); });
-        /// 2. Вычисляем метки для соседей, для каждого соседа записываем вычисленную метку, если она меньше существующей
-        for (const auto &neighbor : graph.at(*vi)) {
-            if (tovisit.find(neighbor.first) == tovisit.end())
-                continue;   /// вершина уже была посещена
-
-            /// neighbor.first - имя соседней вершины
-            /// neighbor.second - расстояние до соседней вершины
-
-            labels[neighbor.first] = std::min(labels[*vi] + neighbor.second, labels[neighbor.first]);
+    dist[src] = 0;
+    heap.addNode({0, src});
+    while (!heap.empty()) {
+        pair<float, string> p = heap.top();
+        string v = p.second;
+        float d = -p.first;
+        heap.pop();
+        if (dist[v] < d) {
+            continue;
+        }
+        for (auto it = g[v].begin(); it != g[v].end(); it++) {
+            if (dist[it->first] > d + it->second) {
+                dist[it->first] = d + it->second;
+                heap.addNode({-dist[it->first], it->first});
+            }
         }
     }
 
-    return 0;
+    return dist[dst];
 }
 
-extern "C" DLL_EXPORT BOOL APIENTRY DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
-{
-    switch (fdwReason)
-    {
-        case DLL_PROCESS_ATTACH:
-            // attach to process
-            // return FALSE to fail DLL load
-            break;
-
-        case DLL_PROCESS_DETACH:
-            // detach from process
-            break;
-
-        case DLL_THREAD_ATTACH:
-            // attach to thread
-            break;
-
-        case DLL_THREAD_DETACH:
-            // detach from thread
-            break;
-    }
-    return TRUE; // succesful
-}
