@@ -65,14 +65,14 @@ public:
     { }
 
     Node* findMin() {
-        Node *node = this;
+        Node* node = this;
         while (node->left)
             node = node->left;
         return node;
     }
 
     Node* findMax() {
-        Node *node = this;
+        Node* node = this;
         while (node->right)
             node = node->right;
         return node;
@@ -95,16 +95,30 @@ public:
     /// TreeIterator it;  ++it      it++
 
     TreeIterator& operator++() {        /// префиксный   ++it
-        /// 1. Если есть элемент справа, берём его.
-        /// 2. Иначе, поднимаемся наверх:
-        /// 2.1. Если мы уже наверху, то проход закончен (node выставляем в nullptr).
-        /// 2.2. Если мы были в левом поддереве, то возвращаем правый элемент текущего родителя
-        /// 2.3. Иначе, переходим на шаг 2.
-
-	// TODO
-
+        TreeIterator old(node);
+        if (node->getRight() != nullptr)
+        {
+            node = node->getRight();
+        }
+        else
+        {
+            Node* temp;
+            while (true)
+            {
+                temp = node;
+                node = node->getParent();
+                if (node == nullptr)
+                    return *this;
+                else if (temp == node->getLeft() && node->getRight() != nullptr)
+                {
+                    node = node->getRight();
+                    return *this;
+                }
+            }
+        }
         return *this;
     }
+	
     TreeIterator operator++(int) {      /// постфиксный   it++
         TreeIterator old(node);
         ++*this;
@@ -124,36 +138,49 @@ public:
 class Tree {
     Node *root;
 
-    /// Вход: b > a, a - родитель b
-    /// Выход: b - родитель a
-    void smallTurnLeft(Node *a, Node *b) {
-        /// 1. Поправить right для родителя (a)
-        /// 2. Поправить parent (b)
-        /// 3. Поправить parent (a)
-        /// 4. Переместить левого потомком (b), сделав его правым потомком (a)
-        /// 5. Инвертировать взаимосвязь (a) и (b)
+    void smallTurnLeft(Node* a, Node* b) {
 
         if (a->parent)
             a->parent->right = b;
         b->parent = a->parent;
         a->parent = b;
-        if (b->left) {
+        if (b->left)
+        {
             b->left->parent = a;
             a->right = b->left;
+        }
+        else
+        {
+            a->right = nullptr;
         }
         b->left = a;
     }
 
-    void smallTurnRight(Node *a, Node *b) {
-	// TODO
+    void smallTurnRight(Node* a, Node* b) {
+        if (a->parent)
+            a->parent->left = b;
+        b->parent = a->parent;
+        a->parent = b;
+        if (b->right)
+        {
+            b->right->parent = a;
+            a->left = b->right;
+        }
+        else
+        {
+            a->left = nullptr;
+        }
+        b->right = a;
     }
 
-    void bigTurnLeft(Node *a, Node *b, Node *c) {
-	// TODO
+    void bigTurnRight(Node* a, Node* b, Node* c) {
+        smallTurnRight(b, c);
+        smallTurnLeft(a, c);
     }
 
-    void bigTurnRight(Node *a, Node *b, Node *c) {
-	// TODO
+    void bigTurnLeft(Node* a, Node* b, Node* c) {
+        smallTurnLeft(b, c);
+        smallTurnRight(a, c);
     }
 
 public:
@@ -212,8 +239,27 @@ public:
         return node;
     }
 
-    /// Ищет узел с таким же, или максимально близким справа ("большим") значением name.
-    Node* findClosest(const std::string &name) {
+    Node* findClosest(const string& name)
+    {
+        Node* cur = root;
+        while (true)
+        {
+            if (cur->right != nullptr && name.compare(cur->right->name) > 0)
+            {
+                cur = cur->right;
+            }
+            else
+            {
+                Node* temp = cur;
+                while (temp->left != nullptr && temp->left->right == nullptr && name.compare(temp->left->name) < 0)
+                {
+                    temp = temp->left;
+                }
+                cur = temp;
+            }
+            break;
+        }
+        return cur;
     }
 
     void deleteNode(Node* node) {
@@ -248,9 +294,11 @@ void testAddNode() {
     assert(def->name == "Def");
     assert(def->description == "");
     assert(def->getParent() == abc);
+    assert(def->getLeft() == nullptr);
+    assert(def->getRight() == nullptr);
     assert(abc->getRight() == def);
 
-    /// Проверяем малый левый поворот
+    /// повороты
     auto ghi = result->addNode("Ghi");
     assert(ghi != nullptr);
     assert(ghi->name == "Ghi");
@@ -264,9 +312,42 @@ void testAddNode() {
     assert(abc->getParent() == def);
     assert(abc->getLeft() == nullptr);
     assert(abc->getRight() == nullptr);
+    assert(result->getRoot() == def);
+    assert(result->getRoot()->getRight() == ghi);
+    assert(result->getRoot()->getLeft() == abc);
 
-    /// Задача: дописать тест, проверяя малый правый и оба больших поворота
-    /// https://gist.github.com/grayed
+    auto abb = result->addNode("Abb");
+    auto aba = result->addNode("Aba");
+    assert(aba != nullptr);
+    assert(aba->name == "Aba");
+    assert(aba->description == "");
+    assert(aba->getParent() == abb);
+    assert(aba->getLeft() == nullptr);
+    assert(aba->getRight() == nullptr);
+    assert(abb->getParent() == abc);
+    assert(abc->getParent() == nullptr);
+    assert(abb->getLeft() == aba);
+    assert(abb->getRight() == nullptr);
+    assert(abc->getParent() == nullptr);
+    assert(abc->getLeft() == abb);
+    assert(abc->getRight() == def);
+    assert(def->getParent() == abc);
+    assert(def->getLeft() == nullptr);
+    assert(def->getRight() == ghi);
+    assert(ghi->getParent() == def);
+    assert(ghi->getLeft() == nullptr);
+    assert(ghi->getRight() == nullptr);
+    
+    //
+
+    //addNode
+
+    auto eee = result->addNode("Eee");
+    assert(def->getRight() == eee);
+    assert(eee->getParent() == def);
+    assert(eee->getLeft() == nullptr);
+    assert(eee->getRight() == ghi);
+
 }
 
 int main()
