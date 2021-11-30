@@ -2,7 +2,7 @@
 #include <iostream>
 #include <string>
 
-///
+///123
 /// Домашнее задание:
 ///
 /// 1.  Добавить findMin() и findMax() в классе Node, аналогичные таковым в Tree;
