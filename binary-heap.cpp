@@ -25,28 +25,73 @@ public:
     /// Если такой элемент уже существует, то изменения не вносятся, а функция возвращает false.
     /// Если элемент добавлен, то функция возвращает true.
     bool addNode(const T& o) {
-        /// 1. Определяем место вставки (первое свободное место в нижнем горизонтальном ряду).
-        /// 2. Сравниваем с родителем, если значение больше родительского, меняем местами с родителем (в цикле).
-
         size_t pos = v.size();
-        if (pos == 0) {
-            /// дерево было пустое
-            /// TODO
+        v.push_back(o);
+        if (pos == 0) //дерево пустое
+        {
             return true;
         }
+        else if (v[0] >= o)
+        {
+            for (int i = 0; i < pos; i++)
+                if (v[i] == o) return false;
+        }
         size_t parent_pos = (pos + 1) / 2 - 1;
-        /// TODO
-	return true;
+        while (pos > 0 && v[pos] > v[parent_pos]) //сортируем "веточку"
+        {
+            swap(v[pos], v[parent_pos]);
+            pos = parent_pos;
+            parent_pos = (pos + 1) / 2 - 1;
+        }
+        return true;
     }
 
     bool removeNode(const T& o) {
-	/// TODO
+	size_t pos;
+        for (pos = 0; pos < v.size(); pos++) //ищем элемент
+            if (v[pos] == o) break;
 
-        /// Если мы удаляем последний элемент из кучи, то просто обрезаем массив.
-        /// В ином случае меняем местами последний элемент из кучи с удаляемым, обрезаем массив, а затем восстанавливаем
-        /// целостность кучи.
+        if (v[pos] != o) return false; //если v[pos] ! = o то такого элемента нет
 
-        v.pop_back();   /// удаляет последний элемент
+        if (pos == v.size() - 1) //если o последний элемент
+        { 
+            v.pop_back(); 
+            return true; 
+        } 
+
+        v[pos] = v[v.size() - 1];
+        v.pop_back();
+        
+        if (v[pos] > v[(pos + 1) / 2 - 1]) //если элемент больше родителя
+        {
+            size_t parent_pos = (pos + 1) / 2 - 1;
+            while (pos > 0 && v[pos] > v[parent_pos])
+            {
+                swap(v[pos], v[parent_pos]);
+                pos = parent_pos;
+                parent_pos = (pos + 1) / 2 - 1;
+            }
+        }
+        else if (2 * pos + 1 < v.size())
+        {
+            size_t right_pos = 2 * pos + 2, left_pos = 2 * pos + 1;
+            while ((left_pos < v.size() && v[pos] < v[left_pos) || (right_pos < v.size() && v[pos] < v[right_pos]))
+            {
+                if (v[pos] < v[left_pos])
+                {
+                    swap(v[pos], v[left_pos]);
+                    pos = left_pos;
+                    left_pos = 2 * pos + 1;
+                }
+                if (v[pos] < v[right_pos])
+                {
+                    swap(v[pos], v[right_pos]);
+                    pos = right_pos;
+                    right_pos = 2 * pos + 2;
+                }
+            }
+        }
+        return true;
     }
 
     class iterator {
@@ -67,22 +112,38 @@ public:
         ///
 
         iterator& operator++() {
-            /// 1. Узнаём высоту элемента
-            /// 2. Узнаём, слева мы или справа
+            int n = ++idx;
 
-            /// Если двигаемся вверх (если нет дочернего элемента справа),
-            /// делим номер в дереве пополам,
-            /// затем отбрасывая дробную часть, в цикле пока не дойдём до чётного элемента,
-            /// затем ещё раз делим номер пополам.
-            ///
-            /// Если двигаемся вниз, то: 1) увеличиваем номер в 2 раза и прибавляем 1;
-            /// 2) пока есть дочерние элементы, увеличиваем номер в 2 раза.
-            ///
-            /// Если двинуться некуда, превращаем итератор в невалидный путём зануления v.
-            ///
-            /// Лист IFF номер элемента, умноженный в 2 раза, меньше количества элементов в дереве
-
-            return *this;
+        /// Если двигаемся вверх (если нет дочернего элемента справа),
+        /// делим номер в дереве пополам,
+        /// затем отбрасывая дробную часть, в цикле пока не дойдём до чётного элемента,
+        /// затем ещё раз делим номер пополам.
+        if (2 * n + 1 > v->size())
+        {
+            while (n % 2 != 0)
+            {
+                n = n / 2;
+            }
+            if (!(n-1))   v = nullptr;
+            n = n / 2;
+        }
+        /// Если двигаемся вниз, то: 1) увеличиваем номер в 2 раза и прибавляем 1;
+        /// 2) пока есть дочерние элементы, увеличиваем номер в 2 раза.
+        else
+        {
+            n = 2 * n + 1;
+            while (2 * n + 2 <= v->size())
+            {
+                while (n % 2 != 0)
+                {
+                    n =* 2;
+                }
+            }
+        }
+        /// Если двинуться некуда, превращаем итератор в невалидный путём зануления v.
+        //
+        /// Лист == номер элемента, умноженный в 2 раза, меньше количества элементов в дереве
+        return *this;
         }
 
         iterator operator++(int) {
@@ -144,7 +205,23 @@ int main()
     vector<int> expected = { 8, 4, 7, 3 };
     testHeapAdd(initial, 8, expected);
 
-    /// TODO тесты для остальных операций с кучей
+    HeapOverArray<int> heap;
+    bool add = heap.addNode(4);
+    assert(add);
+    add = heap.addNode(3);
+    assert(add);
+    add = heap.addNode(5);
+    assert(add);
+    add = heap.addNode(6);
+    assert(add);
+    add = heap.addNode(4);
+    assert(!add);
+    bool remove = heap.removeNode(10);
+    assert(!remove);
+    remove = heap.removeNode(3);
+    assert(remove);
+    add = heap.addNode(14);
+    assert(add);
 
     return 0;
 }
