@@ -43,8 +43,6 @@ public:
         return node;
     }
 
-
-
 };
 
 class TreeIterator;
