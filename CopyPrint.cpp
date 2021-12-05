@@ -23,9 +23,9 @@ void print_arr(const T* pair, size_t count)
     }
 }
 
-//ф-ия MIN(const T* where, size_t count):
-//если массив пуст, то ф-ия возвращает 0
-//иначе индекс минимального элемента
+//Гґ-ГЁГї MIN(const T* where, size_t count):
+//ГҐГ±Г«ГЁ Г¬Г Г±Г±ГЁГў ГЇГіГ±ГІ, ГІГ® Гґ-ГЁГї ГўГ®Г§ГўГ°Г Г№Г ГҐГІ 0
+//ГЁГ­Г Г·ГҐ ГЁГ­Г¤ГҐГЄГ± Г¬ГЁГ­ГЁГ¬Г Г«ГјГ­Г®ГЈГ® ГЅГ«ГҐГ¬ГҐГ­ГІГ 
 template<typename T>
 size_t MIN(const T* where, size_t count)
 {
