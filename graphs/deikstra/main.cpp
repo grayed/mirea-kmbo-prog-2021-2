@@ -1,65 +1,39 @@
-#include <algorithm>
-#include <limits>
+#include "pch.h"
 #include <map>
-#include <set>
+const int INF = 1000000000;
 
-#include <common.h>
-
-/// typedef std::map<std::string, float> weight_map;    /// название вершины -> вес ребра к этой вершине
-/// typedef std::map<std::string, weight_map> graph;    /// название вершины -> набор вершин, в которые можно попасть из данной
-
-float DLL_EXPORT shortest_length(const graph &graph, const std::string &src, const std::string &dst) {
-    std::map<std::string, float> labels;
-    std::set<std::string> tovisit;
-
-    /// Проставить метки
-    for (const auto &kv : graph) {
-        if (kv.first == src)
-            labels[kv.first] = 0;
-        else
-            labels[kv.first] = std::numeric_limits<float>::infinity();
-        tovisit.insert(kv.first);
-    }
-
-    while (tovisit.size() > 0) {
-        /// 1. Выбираем не посещённую вершину с наименьшей меткой
-        auto vi = std::min_element(tovisit.begin(), tovisit.end(),
-                   [labels](const std::string &v1, const std::string &v2) { return labels.at(v1) < labels.at(v2); });
-        /// 2. Вычисляем метки для соседей, для каждого соседа записываем вычисленную метку, если она меньше существующей
-        for (const auto &neighbor : graph.at(*vi)) {
-            if (tovisit.find(neighbor.first) == tovisit.end())
-                continue;   /// вершина уже была посещена
-
-            /// neighbor.first - имя соседней вершины
-            /// neighbor.second - расстояние до соседней вершины
-
-            labels[neighbor.first] = std::min(labels[*vi] + neighbor.second, labels[neighbor.first]);
-        }
-    }
-
-    return 0;
-}
-
-extern "C" DLL_EXPORT BOOL APIENTRY DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
+float shortest_length(const graph& graph, const std::string& src, const std::string& dst)
 {
-    switch (fdwReason)
-    {
-        case DLL_PROCESS_ATTACH:
-            // attach to process
-            // return FALSE to fail DLL load
-            break;
 
-        case DLL_PROCESS_DETACH:
-            // detach from process
-            break;
+	std::map<std::string,float> a;
+	std::map<std::string, bool> u;
+	for (auto i : graph)
+	{
+		a.insert({ i.first,INF });
+		a.insert({ i.first,false });
+	}
+	a[src] = 0;
+	for (auto i : graph)
+	{
+		std::string v = "new";
+		weight_map  d;
+		for (auto j : i.second)
+			if (u[j.first] == false && (v == "new" || a[j.first] < a[v]))
+			{
+				v = j.first;
+				d[v] = j.second;
+			}
 
-        case DLL_THREAD_ATTACH:
-            // attach to thread
-            break;
+		if (a[v] == INF)
+			break;
+		u[v] = true;
 
-        case DLL_THREAD_DETACH:
-            // detach from thread
-            break;
-    }
-    return TRUE; // succesful
+		for (auto k : d)
+		{
+			std::string to = k.first;
+			float len = k.second;
+			a[to] = min(a[v] + len, a[to]);
+		}
+	}
+	return a[dst];
 }
