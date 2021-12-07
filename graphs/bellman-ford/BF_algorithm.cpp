@@ -18,16 +18,16 @@ float DLL_EXPORT shortest_length(const graph& graph, const std::string& src, con
     std::map<std::string, float> labs;
     std::vector<Edges> tovisit;
 
-    for (const auto& s_ : graph)
+    for (const auto& pass : graph)
     {
-        for (const auto& t : s_.second)
+        for (const auto& t : pass.second)
         {
-            tovisit.push_back({ s_.first, t.first, t.second });
+            tovisit.push_back({ pass.first, t.first, t.second });   //rec
         }
-        if (s_.first == src)
-            labs[s_.first] = 0;
+        if (pass.first == src)
+            labs[pass.first] = 0;
         else
-            labs[s_.first] = std::numeric_limits<float>::infinity();
+            labs[pass.first] = std::numeric_limits<float>::infinity();  //inf labels
     }
     for (auto i = 0; i < graph.size() - 1; i++)
     {
