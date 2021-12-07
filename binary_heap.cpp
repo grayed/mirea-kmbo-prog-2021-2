@@ -64,18 +64,17 @@ public:
                 v.push_back(o);
                 return true;
             }
-            else if (v[0] >= o)
-                for (int i = 0; i < pos; i++)
-                    if (v[i] == o) return false;
 
             size_t parent_pos = (pos + 1) / 2 - 1;
 
-            while (o > v[parent_pos] && pos != 0) {
-                std::swap(v.at(pos), v.at(parent_pos));
+            while (parent_pos >= 0 && pos > 0) {
+                if (v[pos] > v[parent_pos])
+                {
+                    swap(v.at(pos), v.at(parent_pos));
+                }
                 pos = parent_pos;
                 parent_pos = (pos + 1) / 2 - 1;
             }
-            return true;
         }
 
     /// ÇÀÄÀ×È, ÷.2
@@ -88,27 +87,21 @@ public:
     {
         auto it = std::find(v.begin(), v.end(), o); //âîçâðàùàåì èòåðàòîð íà íóæíûé ýëåìåíò
 
-        if (it != o) { //òàêîãî ýëåìåíòà íåò
-            return false;
-        }
-        else if (it != v.end()) //óäàëÿåì íå ïîñëåäíèé ýëåìåíò
+        if (it != v.end()) //óäàëÿåì íå ïîñëåäíèé ýëåìåíò
         {
             //ïðîñòî ìåíÿåì íàø ýëåìåíò ñ ïîñëåäíèì ìåñòàìè è óäàëÿåì
             std::swap(it, v.rbegin());
             v.pop_back();
             v.shrink_to_fit(); //îáðåçàëè ìàññèâ
 
-            //âîññòàíàâëèâàåì ïîðÿäîê ??
+            //âîññòàíàâëèâàåì ïîðÿäîê ???
+
+            std::sort_heap(v.begin(), v.end())
 
             
         }
-        else //ïîñëåäíèé ýëåìåíò
-        {
-            v.pop_back();
+            v.pop_back(); 
             v.shrink_to_fit(); //î÷èùàåì íåèñïîëüçîâàííîå ïðîñòðàíñòâî
-            return true;
-        }
-            
     }
 
     class iterator {
@@ -129,23 +122,6 @@ public:
         ///
 
         iterator& operator++() {
-            size_t size = ++idx;
-            if (2 * size + 1 > v->size()) {
-                while (size % 2 != 0) {
-                    size = size / 2;
-                }
-                if (!(size - 1))   
-                    v = nullptr;
-                size = size / 2;
-            }
-            else {
-                size = 2 * size + 1;
-                while (2 * size + 2 <= v->size()) {
-                    while (size % 2 != 0) {
-                        size = *2;
-                    }
-                }
-            }
             /// 1. Óçíà¸ì âûñîòó ýëåìåíòà
             /// 2. Óçíà¸ì, ñëåâà ìû èëè ñïðàâà
 
