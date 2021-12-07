@@ -43,8 +43,10 @@
 */
 
 class Tree;
+class TreeIterator;
 
-class Node {
+class Node 
+{
     Node *left, *right, *parent;
     friend class Tree;
 
@@ -64,14 +66,16 @@ public:
       : left(nullptr), right(nullptr), parent(parent_), name(name_)
     { }
 
-    Node* findMin() {
+    Node* findMin() 
+    {
         Node *node = this;
         while (node->left)
             node = node->left;
         return node;
     }
 
-    Node* findMax() {
+    Node* findMax() 
+    {
         Node *node = this;
         while (node->right)
             node = node->right;
@@ -79,7 +83,8 @@ public:
     }
 };
 
-class TreeIterator : public std::iterator<std::input_iterator_tag, Node> {
+class TreeIterator : public std::iterator<std::input_iterator_tag, Node> 
+{
     Node *node;
 
 public:
@@ -92,68 +97,108 @@ public:
     Node& operator * () { return *node; }
     const Node& operator * () const { return *node; }
 
-    /// TreeIterator it;  ++it      it++
-
-    TreeIterator& operator++() {        /// префиксный   ++it
-        /// 1. Если есть элемент справа, берём его.
-        /// 2. Иначе, поднимаемся наверх:
-        /// 2.1. Если мы уже наверху, то проход закончен (node выставляем в nullptr).
-        /// 2.2. Если мы были в левом поддереве, то возвращаем правый элемент текущего родителя
-        /// 2.3. Иначе, переходим на шаг 2.
-
-	// TODO
+    TreeIterator& operator++() 
+    {
+    	if (node->right)
+            node = node->right->findMin();
+        else if (node->parent)
+        {
+            while (node->parent && node->parent->right == node)
+                node = node->parent;
+            if (node->parent)
+                node = node->parent;
+            else
+                node = nullptr;
+        }
+        else
+            node = nullptr;
 
         return *this;
     }
-    TreeIterator operator++(int) {      /// постфиксный   it++
+    
+    TreeIterator operator++(int) 
+    {
         TreeIterator old(node);
         ++*this;
         return old;
     }
 
-    TreeIterator& operator--() {
-        /// Аналогично operator++()
+    TreeIterator& operator--() 
+    {
+    	if (node->left)
+            node = node->left->findMax();
+        else if (node->parent)
+        {
+            while (node->parent && node->parent->left == node)
+                node = node->parent;
+            if (node->parent)
+                node = node->parent;
+            else
+                node = nullptr;
+        }
+        else
+            node = nullptr;
+
+        return *this;
     }
-    TreeIterator operator--(int) {
+    
+    TreeIterator operator--(int) 
+    {
         TreeIterator old(node);
         --*this;
         return old;
     }
 };
 
-class Tree {
+class Tree 
+{
+private:
     Node *root;
-
-    /// Вход: b > a, a - родитель b
-    /// Выход: b - родитель a
-    void smallTurnLeft(Node *a, Node *b) {
-        /// 1. Поправить right для родителя (a)
-        /// 2. Поправить parent (b)
-        /// 3. Поправить parent (a)
-        /// 4. Переместить левого потомком (b), сделав его правым потомком (a)
-        /// 5. Инвертировать взаимосвязь (a) и (b)
-
-        if (a->parent)
-            a->parent->right = b;
+	
+    void smallTurnLeft(Node *a, Node *b) 
+    {
+	if (a->parent)
+        {
+            if (a->parent->left == a)
+                a->parent->left = b;
+            else
+                a->parent->right = b;
+        }
         b->parent = a->parent;
         a->parent = b;
-        if (b->left) {
+        if (b->left)
             b->left->parent = a;
-            a->right = b->left;
-        }
+        a->right = b->left;
         b->left = a;
     }
 
-    void smallTurnRight(Node *a, Node *b) {
-	// TODO
+    void smallTurnRight(Node *a, Node *b) 
+    {
+	if (a->parent)
+        {
+            if (a->parent->left == a)
+                a->parent->left = b;
+            else
+                a->parent->right = b;
+        }
+        b->parent = a->parent;
+        a->parent = b;
+        if (b->right)
+            b->right->parent = a;
+        a->left = b->right;
+        b->right = a;
     }
 
-    void bigTurnLeft(Node *a, Node *b, Node *c) {
-	// TODO
+    void bigTurnLeft(Node *a, Node *b, Node *c) 
+    {
+	smallTurnRight(b, c);
+        smallTurnLeft(a, c);
     }
 
-    void bigTurnRight(Node *a, Node *b, Node *c) {
-	// TODO
+    void bigTurnRight(Node *a, Node *b, Node *c) 
+    {
+	smallTurnLeft(b, c);
+        smallTurnRight(a, c);
     }
 
 public:
