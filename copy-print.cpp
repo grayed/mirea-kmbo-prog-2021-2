@@ -2,7 +2,7 @@
 #include <iostream>
 #include <cstdlib>
 
-// Домашнее задание:
+// Домашнее заданиеда:
 //
 // 1. Дореализовать copy_array() и print_array()
 //
