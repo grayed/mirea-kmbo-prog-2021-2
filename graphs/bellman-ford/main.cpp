@@ -1,30 +1,42 @@
-#include <common.h>
+#include "pch.h"
+#include "..\\GraphPathFinder\common.h"
+#include <vector>
 
-float DLL_EXPORT shortest_length(const graph &graph, const std::string &src, const std::string &dst) {
-    /// TODO
-    return 0;
-}
-
-extern "C" DLL_EXPORT BOOL APIENTRY DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
+using namespace std;
+struct edge
 {
-    switch (fdwReason)
+    std::string u, v;
+    float w;
+};
+
+float DLL_EXPORT shortest_length(const graph& graph, const std::string& src, const std::string& dst)
+{
+    map<string, float> labels;
+    vector<edge> tovisit;
+
+    for (const auto& s : graph)
     {
-        case DLL_PROCESS_ATTACH:
-            // attach to process
-            // return FALSE to fail DLL load
-            break;
+        for (const auto& t : s.second)
+        {
+            tovisit.push_back({ s.first, t.first, t.second });
+        }
 
-        case DLL_PROCESS_DETACH:
-            // detach from process
-            break;
-
-        case DLL_THREAD_ATTACH:
-            // attach to thread
-            break;
-
-        case DLL_THREAD_DETACH:
-            // detach from thread
-            break;
+        if (s.first == src)
+            labels[s.first] = 0;
+        else
+            labels[s.first] = std::numeric_limits<float>::infinity();
     }
-    return TRUE; // succesful
+
+    for (int i = 0; i < graph.size() - 1; ++i)
+    {
+        for (int j = 0; j < tovisit.size(); ++j)
+        {
+            string from = tovisit[j].u;
+            string to = tovisit[j].v;
+            float w = tovisit[j].w;
+
+            labels[to] = min(labels[to], labels[from] + w);
+        }
+    }
+    return 0;
 }

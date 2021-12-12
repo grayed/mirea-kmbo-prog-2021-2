@@ -1,65 +1,44 @@
+#include "pch.h"
 #include <algorithm>
 #include <limits>
 #include <map>
 #include <set>
 
-#include <common.h>
+#include "..\\GraphPathFinder\common.h"
 
 /// typedef std::map<std::string, float> weight_map;    /// название вершины -> вес ребра к этой вершине
 /// typedef std::map<std::string, weight_map> graph;    /// название вершины -> набор вершин, в которые можно попасть из данной
 
-float DLL_EXPORT shortest_length(const graph &graph, const std::string &src, const std::string &dst) {
-    std::map<std::string, float> labels;
-    std::set<std::string> tovisit;
-
-    /// Проставить метки
-    for (const auto &kv : graph) {
-        if (kv.first == src)
-            labels[kv.first] = 0;
-        else
-            labels[kv.first] = std::numeric_limits<float>::infinity();
-        tovisit.insert(kv.first);
-    }
-
-    while (tovisit.size() > 0) {
-        /// 1. Выбираем не посещённую вершину с наименьшей меткой
-        auto vi = std::min_element(tovisit.begin(), tovisit.end(),
-                   [labels](const std::string &v1, const std::string &v2) { return labels.at(v1) < labels.at(v2); });
-        /// 2. Вычисляем метки для соседей, для каждого соседа записываем вычисленную метку, если она меньше существующей
-        for (const auto &neighbor : graph.at(*vi)) {
-            if (tovisit.find(neighbor.first) == tovisit.end())
-                continue;   /// вершина уже была посещена
-
-            /// neighbor.first - имя соседней вершины
-            /// neighbor.second - расстояние до соседней вершины
-
-            labels[neighbor.first] = std::min(labels[*vi] + neighbor.second, labels[neighbor.first]);
-        }
-    }
-
-    return 0;
-}
-
-extern "C" DLL_EXPORT BOOL APIENTRY DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
+float DLL_EXPORT shortest_length(const graph& graph, const std::string& src, const std::string& dst) 
 {
-    switch (fdwReason)
+    if (graph.find(src) == graph.end() || graph.find(dst) == graph.end())
+        return -1;
+
+    std::map<std::string, bool> used;
+    std::map<std::string, float> path;
+    float inf = std::numeric_limits<float>::infinity();
+
+    for (const auto& g : graph)
     {
-        case DLL_PROCESS_ATTACH:
-            // attach to process
-            // return FALSE to fail DLL load
-            break;
-
-        case DLL_PROCESS_DETACH:
-            // detach from process
-            break;
-
-        case DLL_THREAD_ATTACH:
-            // attach to thread
-            break;
-
-        case DLL_THREAD_DETACH:
-            // detach from thread
-            break;
+        used.insert({ g.first, false });
+        path.insert({ g.first, inf });
     }
-    return TRUE; // succesful
+
+    path[src] = 0;
+    std::string v;
+    for (const auto& g : graph)
+    {
+        for (const auto& to : g.second)
+            if (used[to.first] == 0 && path[to.first] < path[v])
+                v = to.first;
+        used[v] = true;
+
+        for (const auto& to : g.second)
+            if (used[to.first] == 0)
+                path[to.first] = min(path[to.first], path[v] + to.second);
+    }
+
+    if (path[dst] == inf)
+        return -1;
+    return path[dst];
 }
