@@ -1,47 +1,11 @@
-#include <cassert>
+#include <algorithm>
 #include <iostream>
+#include <vector>
 #include <string>
-
-///
-/// Домашнее задание:
-///
-/// 1.  Добавить findMin() и findMax() в классе Node, аналогичные таковым в Tree;
-///     они должны искать в поддереве, корнем которого является текущий узел.
-///
-/// 2.  Реализовать малый правый поворот, а также большие левый и правый повороты
-///     в классе Tree, по аналогии с малым левым поворотом.
-///
-/// 3.  Реализовать префиксный оператор «++» для итератора.
-///
-/// 4.  Реализовать Tree::findNearest() и Tree::deleteNode().
-///
-/// 5.  Реализовать юнит-тесты на все публичные методы классов Tree и TreeIterator,
-///     кроме тривиальных. Прогонять эти тесты в функции main().
-///
-
-/**
-1. Добавление.
-    а) (интерфейсный способ) Создаём дерево, вызываем addNode(), проверяем:
-        * что элемент добавился?
-        * что элемент добавился по соседству с определёнными другими элементами?
-        * сравнить дерево целиком с эталоном?
-    б) (инвазивный) Конструируем объекты Node и Tree вручную, затем вызываем addNode(), проверяем (то же).
-
-2. Удаление.
-    а) Создаём дерево, вызываем removeNode(), проверяем:
-        * что элемента в дереве больше нет?
-        * что бывшие соседи элемента получили определённое новое состояние?
-        * сравнить дерево целиком с эталоном?
-    б) Конструируем объекты Node и Tree вручную, затем вызываем removeNode(), проверяем (то же).
-
-
-3. Проход по дереву.
-    а) Создаём дерево, создаём итератор, в цикле сдвигаем итератор, проверяя на каждом шаге, что
-       мы перешли к определённому элементу.
-    б) То же самое, но дерево создаётся вручную.
-
-*/
-
+#include <map>
+#include <set>
+#include <cassert>
+using namespace std;
 class Tree;
 
 class Node {
@@ -56,13 +20,12 @@ public:
     Node* getParent() { return parent; }
     const Node* getParent() const { return parent; }
 
-    std::string name;
-    std::string description;
+    string name;
+    string description;
     long price;
 
-    Node(const std::string &name_, Node *parent_ = nullptr)
-      : left(nullptr), right(nullptr), parent(parent_), name(name_)
-    { }
+   Node(const string& name, Node* parent = nullptr)
+   	: left(nullptr), right(nullptr), parent(parent), name(name) {}
 
     Node* findMin() {
         Node *node = this;
@@ -79,60 +42,27 @@ public:
     }
 };
 
-class TreeIterator : public std::iterator<std::input_iterator_tag, Node> {
-    Node *node;
-
-public:
-    TreeIterator() : node(nullptr) {}
-    TreeIterator(Node *node_) : node(node_) {}
-
-    bool operator == (const TreeIterator &other) const { return node == other.node; }
-    bool operator != (const TreeIterator &other) const { return node != other.node; }
-
-    Node& operator * () { return *node; }
-    const Node& operator * () const { return *node; }
-
-    /// TreeIterator it;  ++it      it++
-
-    TreeIterator& operator++() {        /// префиксный   ++it
-        /// 1. Если есть элемент справа, берём его.
-        /// 2. Иначе, поднимаемся наверх:
-        /// 2.1. Если мы уже наверху, то проход закончен (node выставляем в nullptr).
-        /// 2.2. Если мы были в левом поддереве, то возвращаем правый элемент текущего родителя
-        /// 2.3. Иначе, переходим на шаг 2.
-
-	// TODO
-
-        return *this;
-    }
-    TreeIterator operator++(int) {      /// постфиксный   it++
-        TreeIterator old(node);
-        ++*this;
-        return old;
-    }
-
-    TreeIterator& operator--() {
-        /// Аналогично operator++()
-    }
-    TreeIterator operator--(int) {
-        TreeIterator old(node);
-        --*this;
-        return old;
-    }
-};
-
+class TreeIterator;
 class Tree {
-    Node *root;
-
-    /// Вход: b > a, a - родитель b
-    /// Выход: b - родитель a
-    void smallTurnLeft(Node *a, Node *b) {
-        /// 1. Поправить right для родителя (a)
-        /// 2. Поправить parent (b)
-        /// 3. Поправить parent (a)
-        /// 4. Переместить левого потомком (b), сделав его правым потомком (a)
-        /// 5. Инвертировать взаимосвязь (a) и (b)
-
+public:
+    Node* root;
+    Tree() : root(nullptr) {}
+    Node* findNode(const string& name)
+    {
+        for (auto node = root; node;)
+        {
+            auto res = name.compare(node->name);
+            if (res == 0)
+                return node;
+            if (res < 0)
+                node = node->left;
+            else
+                node = node->right;
+        }
+        return nullptr;
+    }
+    void smallTurnLeft(Node* a, Node* b)
+    {
         if (a->parent)
             a->parent->right = b;
         b->parent = a->parent;
@@ -142,18 +72,39 @@ class Tree {
             a->right = b->left;
         }
         b->left = a;
+	if (a == root)
+            root = b;
     }
 
     void smallTurnRight(Node *a, Node *b) {
-	// TODO
+	if (a->parent)
+            a->parent->left = b;
+        b->parent = a->parent;
+        a->parent = b;
+        if (b->right)
+        {
+            b->right->parent = a;
+            a->left = b->right;
+        }
+        b->right = a;
+        if (a == root)
+            root = b;
     }
 
     void bigTurnLeft(Node *a, Node *b, Node *c) {
-	// TODO
+	smallTurnRight(b, c);
+        b->left = nullptr;
+        smallTurnLeft(a, c);
+        a->right = nullptr;
+        a->left = nullptr;
     }
 
     void bigTurnRight(Node *a, Node *b, Node *c) {
-	// TODO
+	smallTurnLeft(b, c);
+        b->right = nullptr;
+        smallTurnRight(a, c);
+        a->right = nullptr;
+        a->left = nullptr;
     }
 
 public:
