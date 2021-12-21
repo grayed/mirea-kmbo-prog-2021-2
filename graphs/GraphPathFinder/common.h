@@ -1,3 +1,4 @@
+#pragma once
 #ifndef COMMON_H_INCLUDED
 #define COMMON_H_INCLUDED
 
@@ -5,18 +6,21 @@
 #include <map>
 #include <string>
 
+//#ifdef DIJKSTRA_EXPORTS
+//#BUILD_DLL
 #ifdef BUILD_DLL
-    #define DLL_EXPORT __declspec(dllexport)
+#define DLL_EXPORT __declspec(dllexport)
 #else
-    #define DLL_EXPORT __declspec(dllimport)
+#define DLL_EXPORT __declspec(dllimport) 
 #endif
 
-typedef std::map<std::string, float> weight_map;    /// РЅР°Р·РІР°РЅРёРµ РІРµСЂС€РёРЅС‹ -> РІРµСЃ СЂРµР±СЂР° Рє СЌС‚РѕР№ РІРµСЂС€РёРЅРµ
-typedef std::map<std::string, weight_map> graph;    /// РЅР°Р·РІР°РЅРёРµ РІРµСЂС€РёРЅС‹ -> РЅР°Р±РѕСЂ РІРµСЂС€РёРЅ, РІ РєРѕС‚РѕСЂС‹Рµ РјРѕР¶РЅРѕ РїРѕРїР°СЃС‚СЊ РёР· РґР°РЅРЅРѕР№
+typedef std::map<std::string, float> weight_map;    /// название вершины -> вес ребра к этой вершине
+typedef std::map<std::string, weight_map> graph;    /// название вершины -> набор вершин, в которые можно попасть из данной
 
-/// std::string (РёСЃС…РѕРґРЅР°СЏ РІРµСЂС€РёРЅР°) -> std::string (РєРѕРЅРµС‡РЅР°СЏ РІРµСЂС€РёРЅР°) -> float (РІРµСЃ СЂРµР±СЂР°)
+/// std::string (исходная вершина) -> std::string (конечная вершина) -> float (вес ребра)
 
-float DLL_EXPORT shortest_length(const graph &graph, const std::string &src, const std::string &dst);
+float DLL_EXPORT shortest_length(const graph& graph, const std::string& src, const std::string& dst);
 
 
 #endif // COMMON_H_INCLUDED
+//обработать в СВОЙСТВА->ПРЕПРОЦЕССОР
