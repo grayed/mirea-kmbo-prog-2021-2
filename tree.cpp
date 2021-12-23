@@ -195,7 +195,7 @@ public:
 
     	}
     
-	Node* findMinT()
+	Node* findMin()
     {
         Node* node = root;
         if (!node)
@@ -224,7 +224,7 @@ public:
             node = node->right;
         return node;
     }
-	 Node* findMax()
+	 Node* findMaxarg()
     {
         Node* node = root;
         if (!node)
@@ -234,15 +234,6 @@ public:
         return node;
     }
 	
-	Node* findMax()
-    {
-        Node* node = root;
-        if (!node)
-            return nullptr;
-        while (node->right)
-            node = node->right;
-        return node;
-    }
 	 Node* delNode(const string &name)
     {
 
@@ -357,7 +348,7 @@ public:
     {
 
        if (node->getRight()) {
-            node = node->getRight()->findMinT();
+            node = node->getRight()->findMinarg();
         }
         else if (node->getParent()) 
         {
@@ -391,7 +382,7 @@ public:
     {
  	if (node->getLeft())
         {
-            node = node->getLeft()->findMaxT();
+            node = node->getLeft()->findMaxarg();
         }
         else if (node->getParent())
         {
