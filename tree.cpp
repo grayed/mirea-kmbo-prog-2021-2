@@ -19,21 +19,20 @@ public:
     const Node* getRight() const { return right; }
     Node* getParent() { return parent; }
     const Node* getParent() const { return parent; }
-
     string name;
     string description;
     long price;
     Node(const string& name, Node* parent = nullptr)
         : left(nullptr), right(nullptr), parent(parent), name(name) {}
 
-    Node* findMin() {
+    Node* findMinarg() {
         Node *node = this;
         while (node->left)
             node = node->left;
         return node;
     }
 
-    Node* findMax() {
+    Node* findMaxarg() {
         Node *node = this;
         while (node->right)
             node = node->right;
@@ -62,34 +61,34 @@ public:
         return nullptr;
     }
 
-    void smallTurnLeft(Node* a, Node* b){
-        if (a->parent)
-        a->parent->right = b;
-        b->parent = a->parent;
-        a->parent = b;
-        if (b->left) 
+    void smallTurnLeft(Node* d, Node* e){
+        if (d->parent)
+        d->parent->right = e;
+        e->parent = d->parent;
+        d->parent = e;
+        if (e->left) 
 	{
-            b->left->parent = a;
-            a->right = b->left;
+            e->left->parent = d;
+            d->right = e->left;
         }
-        b->left = a;
-	if (a == root)
-        root = b;
+        e->left = d;
+	if (d == root)
+        root = e;
     }
 
-    void smallTurnRight(Node *a, Node *b) {
-	if (a->parent)
-        a->parent->left = b;
-        b->parent = a->parent;
-        a->parent = b;
-        if (b->right)
+    void smallTurnRight(Node *d, Node *e) {
+	if (d->parent)
+        d->parent->left = e;
+        e->parent = d->parent;
+        d->parent = e;
+        if (e->right)
         {
-            b->right->parent = a;
-            a->left = b->right;
+            e->right->parent = d;
+            d->left = e->right;
         }
-        b->right = a;
-        if (a == root)
-        root = b;
+        e->right = d;
+        if (d == root)
+        root = e;
     }
 
     void bigTurnLeft(Node *a, Node *b, Node *c) {
@@ -155,7 +154,7 @@ public:
         	}
         	if (closest == root)
             		return newNode;
-        	auto d1 = closest->parent;
+        	auto h = closest->parent;
         	if (closest->parent->left == closest)
         	{
             		if (closest->parent->right == nullptr)
@@ -163,7 +162,7 @@ public:
                 		if (res < 0)
                 		{
                     			smallTurnRight(closest->parent, closest);
-                    			d1->left = nullptr;
+                    			h->left = nullptr;
                 		}
                			else
                 		{
@@ -179,13 +178,13 @@ public:
 
                 	if (res < 0)
                 	{
-                    		bigTurnLeft( closest->parent, closest, newNode);
+                    		bigTurnLeft(closest->parent, closest, newNode);
 
                 	}
                 	else
                 	{
                     		smallTurnLeft(closest->parent, closest);
-                    		d1->right = nullptr;
+                    		h->right = nullptr;
 
                 	}
 
@@ -195,7 +194,18 @@ public:
         return newNode;
 
     	}
-    Node* findMinT(Node* a)
+    
+	Node* findMinT()
+    {
+        Node* node = root;
+        if (!node)
+            return nullptr;
+        while (node->left)
+            node = node->left;
+        return node;
+    }
+
+   Node* findMinarg(Node* a)
     {
         Node* node = a;
         if (!node)
@@ -205,19 +215,9 @@ public:
         return node;
     }
 
-    Node* findMaxT(Node* a)
+    Node* findMax()
     {
-        Node* node = a;
-        if (!node)
-            return nullptr;
-        while (node->right)
-            node = node->right;
-        return node;
-    }
-
-    Node* findMaxT(Node* a)
-    {
-        Node* node = a;
+        Node* node = root;
         if (!node)
             return nullptr;
         while (node->right)
@@ -225,6 +225,16 @@ public:
         return node;
     }
 	 Node* findMax()
+    {
+        Node* node = root;
+        if (!node)
+            return nullptr;
+        while (node->right)
+            node = node->right;
+        return node;
+    }
+	
+	Node* findMax()
     {
         Node* node = root;
         if (!node)
@@ -313,7 +323,7 @@ public:
              else
              {
 
-                Node* temp = findMinT(node->right);
+                Node* temp = findMinarg(node->right);
                 node->name = temp->name;
                 privious = temp->parent;
                 if (privious == node)
