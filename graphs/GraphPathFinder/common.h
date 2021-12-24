@@ -1,3 +1,4 @@
+#pragma once
 #ifndef COMMON_H_INCLUDED
 #define COMMON_H_INCLUDED
 
@@ -6,9 +7,9 @@
 #include <string>
 
 #ifdef BUILD_DLL
-    #define DLL_EXPORT __declspec(dllexport)
+#define DLL_EXPORT __declspec(dllexport)
 #else
-    #define DLL_EXPORT __declspec(dllimport)
+#define DLL_EXPORT __declspec(dllimport)
 #endif
 
 typedef std::map<std::string, float> weight_map;    /// название вершины -> вес ребра к этой вершине
