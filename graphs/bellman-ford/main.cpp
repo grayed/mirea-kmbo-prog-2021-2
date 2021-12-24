@@ -1,8 +1,45 @@
-#include <common.h>
+#include "pch.h"
+#include "..\GraphShortPath\common.h"
+#define INF 1e6
+#include <map>
 
-float DLL_EXPORT shortest_length(const graph &graph, const std::string &src, const std::string &dst) {
-    /// TODO
-    return 0;
+float DLL_EXPORT shortest_length(const graph &graph, const std::string &src, const std::string &dst)
+{
+    auto search_1 = graph.find(src);
+    auto search_2 = graph.find(dst);
+    
+    if (search_1 == graph.end() || search_2 == graph.end())
+        return -1;
+    
+    std::map<std::string, float> v;
+    std::map<std::string, bool> u;
+    for (const auto& g : graph) 
+    {
+        u.insert({ g.first, false });
+        v.insert({ g.first, INF });
+    }
+    
+    v[src] = 0;
+    std::string temp;
+    for (const auto& g : graph) 
+    {
+        float min = INF;
+        for (const auto& w : g.second)
+            if (!u[w.first] && v[w.first] < min) 
+            {
+                min = v[w.first];
+                temp = w.first;
+            }
+        u[temp] = true;
+
+        for (const auto& w : g.second)
+            if (w.second != -1 && !u[w.first] && d[temp] + w.second < v[w.first])
+                v[w.first] = v[temp] + w.second;
+    }
+    
+    if (v[dst] == INF)
+        return -1;
+    return v[dst];
 }
 
 extern "C" DLL_EXPORT BOOL APIENTRY DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
