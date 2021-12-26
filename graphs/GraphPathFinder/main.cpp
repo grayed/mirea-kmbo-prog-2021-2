@@ -9,33 +9,41 @@ using namespace std;
 /// вершина -> { вершина -> вес }
 
 
-graph build_graph(std::istream &is) {
-    /// TODO 1
-    /// считываем строчку ребра; берём из неё названия начальной и конечной вершин ребра, а также вес ребра
+graph build_graph(std::istream& is) {
     std::string src = ""; /// исходная вершина
     std::string dst = ""; /// конечная вершина
     float weight = 0;    /// вес ребра src-dst
 
+
+
     graph graph;
 
     /// цикл до конца входного потока данных
+    while (!is.eof()) {
+        /// FIXME лучше через is.get_line() (например, обернув считанную строку в std::stringstream)
+        is >> src >> dst >> weight;
 
-    /// FIXME лучше через is.get_line() (например, обернув считанную строку в std::stringstream)
-    is >> src >> dst >> weight;
+        /// проверяем, существует ли конечная вершина; если нет - добавляем; если да, используем имеющуюся
+        if (graph.count(dst) == 0) {
+            graph.insert(std::pair<std::string, weight_map>(dst, weight_map()));
+        }
 
-    /// проверяем, существует ли конечная вершина; если нет - добавляем; если да, используем имеющуюся
-    graph.insert(std::pair<std::string, weight_map>(dst, weight_map()));
+        /// проверяем, существует ли исходная вершина; если нет - добавляем; если да, используем имеющуюся
+        if (graph.count(src) == 0) {
+            graph.insert(std::pair<std::string, weight_map>(src, weight_map()));
+        }
 
-    /// проверяем, существует ли исходная вершина; если нет - добавляем; если да, используем имеющуюся
-    std::pair<graph::iterator, bool> insres = graph.insert(std::pair<std::string, weight_map>(dst, weight_map()));
+        std::pair<graph::iterator, bool> insres = graph.insert(std::pair<std::string, weight_map>(dst, weight_map()));
+       
+        /// добавляем запись про конечную вершину и вес в исходную
+        insres.first->second.insert(std::pair<std::string, float>(dst, weight));
 
-    /// добавляем запись про конечную вершину и вес в исходную
-    insres.first->second.insert(std::pair<std::string, float>(dst, weight));
-
-    /// переходим к следующей строке
+        /// переходим к следующей строке
+    }
+    return graph;
 }
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
     if (argc < 2) {
         cerr << "Need at least 2 points to search" << endl;

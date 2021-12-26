@@ -1,279 +1,485 @@
-#include <cassert>
 #include <iostream>
 #include <string>
+#include <cassert>
 
-///
-/// Домашнее задание:
-///
-/// 1.  Добавить findMin() и findMax() в классе Node, аналогичные таковым в Tree;
-///     они должны искать в поддереве, корнем которого является текущий узел.
-///
-/// 2.  Реализовать малый правый поворот, а также большие левый и правый повороты
-///     в классе Tree, по аналогии с малым левым поворотом.
-///
-/// 3.  Реализовать префиксный оператор «++» для итератора.
-///
-/// 4.  Реализовать Tree::findNearest() и Tree::deleteNode().
-///
-/// 5.  Реализовать юнит-тесты на все публичные методы классов Tree и TreeIterator,
-///     кроме тривиальных. Прогонять эти тесты в функции main().
-///
+using namespace std;
 
-/**
-1. Добавление.
-    а) (интерфейсный способ) Создаём дерево, вызываем addNode(), проверяем:
-        * что элемент добавился?
-        * что элемент добавился по соседству с определёнными другими элементами?
-        * сравнить дерево целиком с эталоном?
-    б) (инвазивный) Конструируем объекты Node и Tree вручную, затем вызываем addNode(), проверяем (то же).
-
-2. Удаление.
-    а) Создаём дерево, вызываем removeNode(), проверяем:
-        * что элемента в дереве больше нет?
-        * что бывшие соседи элемента получили определённое новое состояние?
-        * сравнить дерево целиком с эталоном?
-    б) Конструируем объекты Node и Tree вручную, затем вызываем removeNode(), проверяем (то же).
-
-
-3. Проход по дереву.
-    а) Создаём дерево, создаём итератор, в цикле сдвигаем итератор, проверяя на каждом шаге, что
-       мы перешли к определённому элементу.
-    б) То же самое, но дерево создаётся вручную.
-
-*/
-
+class TreeIter;
 class Tree;
 
 class Node {
+private:
     Node *left, *right, *parent;
     friend class Tree;
+    friend class TreeIter;
 
 public:
     Node* getLeft() { return left; }
-    const Node* getLeft() const { return left; }
-    Node* getRight() { return right; }
-    const Node* getRight() const { return right; }
-    Node* getParent() { return parent; }
-    const Node* getParent() const { return parent; }
+    Node* getRoot() {return parent; }
+    Node* getRight() {return right; }
+    string desc;
+    string name;
 
-    std::string name;
-    std::string description;
-    long price;
+    Node() : left(nullptr), right(nullptr), parent(nullptr), name("") {}
+    Node(const string& _name, Node* _parent = nullptr) : left(nullptr), right(nullptr), parent(_parent), name(_name) {}
 
-    Node(const std::string &name_, Node *parent_ = nullptr)
-      : left(nullptr), right(nullptr), parent(parent_), name(name_)
-    { }
-
-    Node* findMin() {
-        Node *node = this;
-        while (node->left)
-            node = node->left;
-        return node;
-    }
 
     Node* findMax() {
         Node *node = this;
-        while (node->right)
+        while (node->right) {
             node = node->right;
+        }
         return node;
     }
+
+    Node* findMin() {
+        Node *node = this;
+        while (node->left) {
+            node = node->left;
+        }
+        return node;
+    }
+
+
+
 };
 
-class TreeIterator : public std::iterator<std::input_iterator_tag, Node> {
+class TreeIter: public iterator<std::input_iterator_tag, Node> {
+private:
     Node *node;
-
 public:
-    TreeIterator() : node(nullptr) {}
-    TreeIterator(Node *node_) : node(node_) {}
+    TreeIter() : node(nullptr) {}
 
-    bool operator == (const TreeIterator &other) const { return node == other.node; }
-    bool operator != (const TreeIterator &other) const { return node != other.node; }
+    TreeIter(Node* node_) : node(node_) {}
 
-    Node& operator * () { return *node; }
-    const Node& operator * () const { return *node; }
+    bool operator==(const TreeIter& other) const {
+        return node == other.node;
+    }
 
-    /// TreeIterator it;  ++it      it++
+    bool operator!=(const TreeIter& other) const {
+        return !(*this == other);
+    }
 
-    TreeIterator& operator++() {        /// префиксный   ++it
-        /// 1. Если есть элемент справа, берём его.
-        /// 2. Иначе, поднимаемся наверх:
-        /// 2.1. Если мы уже наверху, то проход закончен (node выставляем в nullptr).
-        /// 2.2. Если мы были в левом поддереве, то возвращаем правый элемент текущего родителя
-        /// 2.3. Иначе, переходим на шаг 2.
+    const Node* operator->() const { return node; }
+    Node* operator->() { return node; }
 
-	// TODO
+    const Node& operator*() const { return *node; }
+    Node& operator*() { return *node; }
 
+    TreeIter& operator++() {
+        if (node->right) {
+            node = node->right->findMin();
+        } else if (node->parent) {
+            while (node->parent->right == node && node->parent) {
+                node = node->parent;
+            }
+            if (node->parent) {
+                node = node->parent;
+            } else {
+                node = nullptr;
+            }
+        } else {
+            node = nullptr;
+        }
         return *this;
     }
-    TreeIterator operator++(int) {      /// постфиксный   it++
-        TreeIterator old(node);
+
+    TreeIter operator++(int) {
+        TreeIter prev(node);
         ++*this;
-        return old;
+        return prev;
     }
 
-    TreeIterator& operator--() {
-        /// Аналогично operator++()
-    }
-    TreeIterator operator--(int) {
-        TreeIterator old(node);
+    TreeIter operator--(int) {
+        TreeIter prev(node);
         --*this;
-        return old;
+    }
+
+    TreeIter& operator--() {
+        if (node->left) {
+            node = node->left->findMax();
+        } else if (node->parent) {
+            while (node->parent->left == node && node->parent) {
+                node = node->parent;
+            }
+            if (node->parent) {
+                node = node->parent;
+            } else {
+                node = nullptr;
+            }
+        } else {
+            node = nullptr;
+        }
+        return *this;
     }
 };
 
+
 class Tree {
-    Node *root;
+private:
+    Node* root;
 
-    /// Вход: b > a, a - родитель b
-    /// Выход: b - родитель a
-    void smallTurnLeft(Node *a, Node *b) {
-        /// 1. Поправить right для родителя (a)
-        /// 2. Поправить parent (b)
-        /// 3. Поправить parent (a)
-        /// 4. Переместить левого потомком (b), сделав его правым потомком (a)
-        /// 5. Инвертировать взаимосвязь (a) и (b)
-
-        if (a->parent)
-            a->parent->right = b;
+    void smallTurnLeft(Node* a, Node* b) {
+        if (a->parent) {
+            if (a->parent->left == a) {
+                a->parent->left = b;
+            } else {
+                a->parent->right = b;
+            }
+        }
         b->parent = a->parent;
         a->parent = b;
         if (b->left) {
             b->left->parent = a;
-            a->right = b->left;
         }
+        a->right = b->left;
         b->left = a;
     }
 
-    void smallTurnRight(Node *a, Node *b) {
-	// TODO
+    void smallTurnRight(Node* a, Node* b) {
+        if (a->parent) {
+            if (a->parent->left == a) {
+                a->parent->left = b;
+            } else {
+                a->parent->right = b;
+            }
+        }
+        b->parent = a->parent;
+        a->parent = b;
+        if (b->right) {
+            b->right->parent = a;
+        }
+        a->left = b->right;
+        b->right = a;
     }
+
+
+    void bigTurnRight(Node* a, Node* b, Node* c) {
+        smallTurnRight(b, c);
+        smallTurnLeft(a, c);
+    }
+
 
     void bigTurnLeft(Node *a, Node *b, Node *c) {
-	// TODO
+        smallTurnLeft(b, c);
+        smallTurnRight(a, c);
     }
-
-    void bigTurnRight(Node *a, Node *b, Node *c) {
-	// TODO
-    }
-
 public:
-    Node* getRoot() { return root; }
+
     const Node* getRoot() const { return root; }
+    Node* getRoot() { return root; }
+    Tree() : root(nullptr) {}
 
-    Tree() : root(nullptr) { }
-    Node* addNode(const std::string &name) {
-        Node *closest = findClosest(name);
-        if (closest && closest->name == name)
-            return nullptr;
-        Node *newNode = new Node(name, closest);
-
-        /// 1. Определиться, будем добавлять левый или правый элемент (родитель - closest).
-        /// 2. После добавления поднимаемся на уровень выше (в closest) и проверяем балансировку дерева
-        ///    Сбалансировано - если разница высот левого и правого поддеревьев не более 1.
-        /// 3. Если не сбалансировано, то выполняем поворот.
-        ///    4 вида поворотов:
-        ///       малый левый поворот
-        ///       малый правый поворот
-        ///       большой левый поворот
-        ///       большой правый поворот
-        ///     Определить вид требуемого поворота и произвести его
-
-        return newNode;
+    int Height(const Node* node) {
+        if (node == nullptr) {
+            return 0;
+        }
+        int left = Height(node->left);
+        int right = Height(node->right);
+        return max(left, right) + 1;
     }
 
-    Node* findNode(const std::string &name) {
-        for (auto node = root; node;) {
-            auto res = name.compare(node->name);
-            if (res == 0)
+    Node* getUnbalanced(Node* node) {
+        int left, right;
+        while (node) {
+            left = Height(node->left);
+            right = Height(node->right);
+            if (abs(left - right) >= 2) {
                 return node;
-            if (res < 0)
-                node = node->left;
-            else
-                node = node->right;
+            }
+            node = node->parent;
         }
         return nullptr;
     }
 
-    Node* findMin() {
-        Node *node = root;
-        if (!node)
+    void balancingTree(Node* node) {
+        int rHeight = Height(node->right);
+        int lHeight = Height(node->left);
+        if (lHeight > rHeight) {
+            Node* next = node->left;
+            rHeight = Height(next->right);
+            lHeight = Height(next->left);
+            if (lHeight >= rHeight) {
+                smallTurnRight(node, next);
+            } else {
+                bigTurnLeft(node, next, next->right);
+            }
+        } else {
+            Node* next = node->right;
+            rHeight = Height(next->right);
+            lHeight = Height(next->left);
+            if (lHeight <= rHeight) {
+                smallTurnLeft(node, next);
+            } else {
+                bigTurnRight(node, next, next->left);
+            }
+        }
+        if (node == root) {
+            root = node->parent;
+        }
+    }
+
+    Node* findClosest(const string& name) {
+        Node* answ = nullptr;
+        for (auto node = root; node;) {
+            auto res = name.compare(node->name);
+            if (res == 0) {
+                return node;
+            }
+            if (res < 0) {
+                answ = node;
+                node = node->left;
+            }
+            else {
+                node = node->right;
+            }
+        }
+        return answ;
+    }
+
+    Node* addNode(const std::string& name) {
+        Node *closest = findClosest(name);
+        if (closest && closest->name == name) {
             return nullptr;
-        while (node->left)
+        }
+        Node* newNode = new Node(name, closest);
+        if (closest == nullptr) {
+            Node* maxNode = maxNode->findMax();
+            if (maxNode == nullptr) {
+                root = newNode;
+                return root;
+            }
+            newNode->parent = maxNode;
+            maxNode->right = newNode;
+        } else {
+            if (closest->left) {
+                closest->left->parent = newNode;
+            }
+            closest->left = newNode;
+            newNode->parent = closest;
+            newNode->left = closest->left;
+
+        }
+        Node* unbalanced = getUnbalanced(newNode->parent);
+        if (unbalanced != nullptr) {
+            balancingTree(unbalanced);
+        }
+
+        return newNode;
+    }
+
+    Node* findNode(const string& name) {
+        for (auto node = root; node; ) {
+            auto res = name.compare(node->name);
+                if (res == 0) {
+                    return node;
+                } else if (res < 0) {
+                    node = node->left;
+                } else {
+                    node = node->right;
+                }
+        }
+        return nullptr;
+    }
+    void deleteNode(Node* node) {
+        Node* closestMin = node->left;
+
+        // ищем макс узел в левом поддереве
+        for (auto tmp = node->left; tmp;) {
+            closestMin = tmp;
+            tmp = tmp->right;
+        }
+
+        Node* closest = node->right;
+        if (closestMin) {
+            closest = closestMin;
+
+            // меняем удаляемый на макс из левого поддерева
+            closestMin->right = node->right;
+            closestMin->left = nullptr;
+            if (closestMin->parent != node) {
+                // если есть поддерево
+                closestMin->parent->right = closestMin->left;
+                if (closestMin->left) {
+                    closestMin->left->parent = closestMin->parent;
+                }
+                closestMin->left = node->left;
+                node->left->parent = closestMin;
+            }
+            closestMin->parent = node->parent;
+        }
+        if (node->right) {
+            if (closestMin) {
+                node->right->parent = closestMin;
+            }
+            else {
+                node->right->parent = node->parent;
+            }
+        }
+
+        Node* parent = node->parent;
+        if (parent) {
+            // узел в левом или правом поддереве
+            auto compRapent = node->name.compare(parent->name);
+            if (compRapent < 0) {
+                parent->left = closest;
+            }
+            else {
+                parent->right = closest;
+            }
+        }
+        if (node == root) {
+            root = closest;
+        }
+        delete node;
+        Node* balanceWhere = parent;
+        if (closest) {
+            balanceWhere = closest;
+        }
+        if (balanceWhere) {
+            Node* unbalanced = getUnbalanced(balanceWhere);
+            if (unbalanced != nullptr) {
+                balancingTree(unbalanced);
+            }
+        }
+    }
+
+    Node* findMin() {
+        Node* node = root;
+        if (!node) {
+            return nullptr;
+        }
+        while (node->left) {
             node = node->left;
+        }
         return node;
     }
 
     Node* findMax() {
-        Node *node = root;
-        if (!node)
+        Node* node = root;
+        if (!node) {
             return nullptr;
-        while (node->right)
+        }
+        while (node->right) {
             node = node->right;
+        }
         return node;
     }
 
-    /// Ищет узел с таким же, или максимально близким справа ("большим") значением name.
-    Node* findClosest(const std::string &name) {
+    TreeIter end() {
+        return TreeIter();
     }
 
-    void deleteNode(Node* node) {
+    TreeIter begin() {
+        return TreeIter(findMin());
     }
 
-    TreeIterator begin() {}     /// Возвращает итератор, указывающий на минимальный элемент
-    TreeIterator end() {}       /// Возвращает итератор, указывающий на nullptr Node
+
 };
 
-
-/// TreeIterator it;
-/// it++     ++it
-
-
-#include <map>
-#include <set>
-
-
-void testAddNode() {
+void testAdd() {
     Tree *result = new Tree();
 
+
+    // small turn right
+    result = new Tree();
+    auto a = result->addNode("a");
+    assert(a != nullptr);
+    assert(a->name == "a");
+    assert(a->desc == "");
+    assert(a->getRoot() == nullptr);
+    assert(a->getLeft() == nullptr);
+    assert(a->getRight() == nullptr);
+
+    auto b = result->addNode("b");
+    assert(b != nullptr);
+    assert(b->name == "b");
+    assert(b->desc == "");
+    assert(b->getRoot() == a);
+    assert(b->getLeft() == nullptr);
+    assert(b->getRight() == nullptr);
+
+    auto c = result->addNode("c");
+    assert(c != nullptr);
+    assert(c->name == "c");
+    assert(c->desc == "");
+    assert(c->getRoot() == b);
+    assert(c->getLeft() == nullptr);
+    assert(c->getRight() == nullptr);
+    assert(b->getRoot() == nullptr);
+    assert(b->getLeft() == a);
+    assert(b->getRight() == c);
+    assert(a->getRoot() == b);
+    assert(a->getLeft() == nullptr);
+    assert(a->getRight() == nullptr);
+
+    result = new Tree();
     auto abc = result->addNode("Abc");
     assert(abc != nullptr);
     assert(abc->name == "Abc");
-    assert(abc->description == "");
-    assert(abc->getParent() == nullptr);
+    assert(abc->desc == "");
+    assert(abc->getRoot() == nullptr);
     assert(abc->getLeft() == nullptr);
     assert(abc->getRight() == nullptr);
 
-    auto def = result->addNode("Def");
-    assert(def != nullptr);
-    assert(def->name == "Def");
-    assert(def->description == "");
-    assert(def->getParent() == abc);
-    assert(abc->getRight() == def);
+    auto ade = result->addNode("Ade");
+    assert(ade != nullptr);
+    assert(ade->name == "Ade");
+    assert(ade->desc == "");
+    assert(ade->getRoot() == abc);
+    assert(ade->getRight() == nullptr);
+    assert(ade->getLeft() == nullptr);
 
-    /// Проверяем малый левый поворот
-    auto ghi = result->addNode("Ghi");
-    assert(ghi != nullptr);
-    assert(ghi->name == "Ghi");
-    assert(ghi->description == "");
-    assert(ghi->getParent() == def);
-    assert(ghi->getLeft() == nullptr);
-    assert(ghi->getRight() == nullptr);
-    assert(def->getParent() == nullptr);
-    assert(def->getLeft() == abc);
-    assert(def->getRight() == ghi);
-    assert(abc->getParent() == def);
+    auto acd = result->addNode("Acd");
+    assert(acd != nullptr);
+    assert(acd->name == "Acd");
+    assert(acd->desc == "");
+    assert(acd->getRoot() == nullptr);
+    assert(ade->getRight() == nullptr);
+    assert(ade->getRoot() == acd);
+    assert(ade->getLeft() == nullptr);
+    assert(abc->getLeft() == nullptr);
+    assert(abc->getRoot() == acd);
+    assert(abc->getRight() == nullptr);
+
+    delete result;
+
+    // Big turn right
+    result = new Tree();
+    abc = result->addNode("Abc");
+    assert(abc != nullptr);
+    assert(abc->name == "Abc");
+    assert(abc->desc == "");
+    assert(abc->getRoot() == nullptr);
     assert(abc->getLeft() == nullptr);
     assert(abc->getRight() == nullptr);
 
-    /// Задача: дописать тест, проверяя малый правый и оба больших поворота
-    /// https://gist.github.com/grayed
+    acd = result->addNode("Acd");
+    assert(acd != nullptr);
+    assert(acd->name == "Acd");
+    assert(acd->desc == "");
+    assert(acd->getRoot() == abc);
+    assert(acd->getRight() == nullptr);
+    assert(acd->getLeft() == nullptr);
+
+    ade = result->addNode("Ade");
+    assert(ade != nullptr);
+    assert(ade->name == "Ade");
+    assert(ade->desc == "");
+    assert(ade->getRoot() == acd);
+    assert(ade->getRight() == nullptr);
+    assert(ade->getLeft() == nullptr);
+    assert(abc->getRoot() == acd);
+    assert(abc->getLeft() == nullptr);
+    assert(abc->getRight() == nullptr);
+    assert(acd->getRoot() == nullptr);
+    assert(acd->getRight() == ade);
+    assert(acd->getLeft() == abc);
 }
 
-int main()
-{
-    std::cerr << "Test" << std::endl;
-    testAddNode();
 
+int main() {
+    testAdd();
+    
     return 0;
 }
-
