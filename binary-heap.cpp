@@ -1,150 +1,158 @@
 #include <iostream>
 #include <vector>
+#include <cassert>
 
 using namespace std;
 
-///
-/// Домашнее задание:
-///
-/// 1. Реализовать добавление и удаление узлов в бинарную кучу.
-/// 2. Реализовать итератор, проходящий от самой левой до самой правой вершины дерева.
-/// 3. Написать юнит-тесты для всех перечисленных выше задач.
-///
-
-
-template<class T>
-class HeapOverArray {
-    std::vector<T> v;
-
+template <class T>
+class iterator {
+    std::vector<T>* v;
+    size_t idx;
 public:
-    HeapOverArray() {}
-    HeapOverArray(const std::vector<T> &initv) : v(initv) {}    /// Требуется, чтобы массив был заранее упорядочен
+    iterator() : v(nullptr) {}
+    iterator(std::vector<T>* v_, size_t idx_) : v(v_), idx(idx_) {}
 
-    const std::vector<T>& getVector() const { return v; }
+    ///
+    /// 100
+    ///  70          60
+    ///  25    10    40     5
+    ///   8  2  9  1  3
+    ///
+    /// 100 70 60 25 10 40 5 8 2 9 1 3
+    ///
 
-    /// Если такой элемент уже существует, то изменения не вносятся, а функция возвращает false.
-    /// Если элемент добавлен, то функция возвращает true.
-    bool addNode(const T& o) {
-        /// 1. Определяем место вставки (первое свободное место в нижнем горизонтальном ряду).
-        /// 2. Сравниваем с родителем, если значение больше родительского, меняем местами с родителем (в цикле).
+    iterator& operator++() {
+        int n = ++idx;
 
-        size_t pos = v.size();
-        if (pos == 0) {
-            /// дерево было пустое
-            /// TODO
-            return true;
+        if (2 * n + 1 > v->size()) {
+            while (n % 2 != 0) n = n / 2;
+            if (!(n - 1)) v = nullptr;
+            n /= 2;
         }
-        size_t parent_pos = (pos + 1) / 2 - 1;
-        /// TODO
-	return true;
-    }
-
-    bool removeNode(const T& o) {
-	/// TODO
-
-        /// Если мы удаляем последний элемент из кучи, то просто обрезаем массив.
-        /// В ином случае меняем местами последний элемент из кучи с удаляемым, обрезаем массив, а затем восстанавливаем
-        /// целостность кучи.
-
-        v.pop_back();   /// удаляет последний элемент
-    }
-
-    class iterator {
-        std::vector<T> *v;
-        size_t idx;
-
-    public:
-        iterator() : v(nullptr) {}
-        iterator(std::vector<T> *v_, size_t idx_) : v(v_), idx(idx_) {}
-
-        ///
-        /// 100
-        ///  70          60
-        ///  25    10    40     5
-        ///   8  2  9  1  3
-        ///
-        /// 100 70 60 25 10 40 5 8 2 9 1 3
-        ///
-
-        iterator& operator++() {
-            /// 1. Узнаём высоту элемента
-            /// 2. Узнаём, слева мы или справа
-
-            /// Если двигаемся вверх (если нет дочернего элемента справа),
-            /// делим номер в дереве пополам,
-            /// затем отбрасывая дробную часть, в цикле пока не дойдём до чётного элемента,
-            /// затем ещё раз делим номер пополам.
-            ///
-            /// Если двигаемся вниз, то: 1) увеличиваем номер в 2 раза и прибавляем 1;
-            /// 2) пока есть дочерние элементы, увеличиваем номер в 2 раза.
-            ///
-            /// Если двинуться некуда, превращаем итератор в невалидный путём зануления v.
-            ///
-            /// Лист IFF номер элемента, умноженный в 2 раза, меньше количества элементов в дереве
-
-            return *this;
+        else {
+            n = 2 * n + 1;
+            while (2 * n + 2 <= v->size()) {
+                while (!(n % 2)) n *= 2;
+            }
         }
 
-        iterator operator++(int) {
-            auto prev = *this;
-            ++(*this);
-            return prev;
-        }
-
-        operator bool() const { return v != nullptr; }
-        /// Теперь можно писать так:
-        ///
-        /// HeapOverArray::iterator iter;
-        /// if (iter) { /* ... */ }
-        ///
-        /// HeapOverArray heap;
-        /// for (auto it = heap.begin(); it; it++) { /* ... */ }
-
-        const T& operator*() const { return v[idx]; }
-        T& operator*() { return v[idx]; }
-    };
-
-    iterator begin() {
-        if (v.empty())
-            return iterator();
-        /// От корня двигаемся влево до упора
-        /// TODO
+        return *this;
     }
 
-    iterator end() { return iterator(); }
+    iterator operator++(int) {
+        auto prev = *this;
+        ++(*this);
+        return prev;
+    }
 
-    ///   #1 #2 #3 #4
-    ///    7  3  4
-    ///    7  3  4  8
-    ///    7  8  4  3
-    ///    8  7  4  3
-    ///    8  4  7  3
+    //bool operator bool() const { return v != nullptr; }
+
+    const T& operator*() const { return v[idx]; }
+    T& operator*() { return v[idx]; }
 };
 
-template<class T>
-bool testHeapAdd(const std::vector<T> &initial, const T &value, const std::vector<T> &expected) {
-    HeapOverArray<T> heap(initial);
-    heap.addNode(value);
-    auto v = heap.getVector();
-    if (v.size() != expected.size()) {
-        std::cerr << "size difference: expected " << expected.size() << ", got " << v.size() << std::endl;
-        return false;
+class Node {
+    Node* left, * right, * parent;
+    friend class Tree;
+
+public:
+    Node* getLeft() { return left; }
+    const Node* getLeft() const { return left; }
+    Node* getRight() { return right; }
+    const Node* getRight() const { return right; }
+    Node* getParent() { return parent; }
+    const Node* getParent() const { return parent; }
+
+    std::string name;
+    std::string description;
+    //long price;
+
+    Node(const std::string& name_, Node* parent_ = nullptr)
+        : left(nullptr), right(nullptr), parent(parent_), name(name_)
+    { }
+
+    Node* findMin() {
+        Node* node = this;
+        while (node->left)
+            node = node->left;
+        return node;
     }
-    for (size_t i = 0; i < expected.size(); i++)
-        if (v[i] != expected[i]) {
-            std::cerr << "difference in " << i << ": expected " << expected[i] << ", got " << v[i] << std::endl;
-            return false;
+
+    Node* findMax() {
+        Node* node = this;
+        while (node->right)
+            node = node->right;
+        return node;
+    }
+};
+
+template <class T>
+class HeapOverArray {
+	std::vector<T> v;
+
+public:
+	HeapOverArray() {}
+
+	bool addNode(const T& o) {
+
+        size_t pos = v.size();
+        v.push_back(o);
+        if (pos == 0) return true;
+        else if (v[0] >= o)
+            for (int i = 0; i < pos; i++)
+                if (v[i] == o) return false;
+
+        size_t parent_pos = (pos + 1) / 2 - 1;
+        while (pos > 0 && v[pos] > v[parent_pos]) {
+            swap(v[pos], v[parent_pos]);
+            pos = parent_pos;
+            parent_pos = (pos + 1) / 2 - 1;
         }
-    return true;
-}
+        return true;
 
-int main()
-{
-    vector<int> initial = { 7, 3, 4 };
-    vector<int> expected = { 8, 4, 7, 3 };
-    testHeapAdd(initial, 8, expected);
+	}
 
-    /// TODO тесты для остальных операций с кучей
+	bool removeNode(const T & val) {
+        size_t pos = -1;
+        for (int i = 0; i < v.size(); ++i)
+            if (v[i] == val) {
+                pos = i;
+                break;
+            }
 
-    return 0;
+        if (pos == -1)return false;
+
+        v[pos] = v[v.size() - 1];
+        v.pop_back();
+
+        while (pos > 0 && v[pos] > v[(pos + 1) / 2 - 1]) {
+            swap(v[pos], v[(pos + 1) / 2 - 1]);
+            pos = (pos + 1) / 2 - 1;
+        }
+
+        if (pos == 0) return true;
+
+        while (pos * 2 + 1 < v.size() && v[pos] < v[2 * pos] && v[pos] < v[pos * 2 + 1]) {
+            swap(v[2 * pos], v[pos]);
+            pos *= 2;
+        }
+        if (pos * 2 < v.size() && v[pos] < v[pos * 2])
+            swap(v[2 * pos], v[pos]);
+        return true;
+	}
+};
+
+int main() {
+    HeapOverArray <int> heap;
+    bool add = heap.addNode(4);
+    assert(add);
+    add = heap.addNode(3);
+    assert(add);
+    add = heap.addNode(5);
+    assert(add);
+    add = heap.addNode(6);
+    assert(add);
+    add = heap.addNode(4);
+    assert(!add);
+    cout << "The code is working just fine";
 }
