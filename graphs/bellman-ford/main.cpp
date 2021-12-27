@@ -1,30 +1,57 @@
-#include <common.h>
+#include <iostream>
+#include <fstream>
+#include <cmath>
+#include <algorithm>
+#include <vector>
+#include <set>
+#include <map>
+#include <stack>
+#include <queue>
 
-float DLL_EXPORT shortest_length(const graph &graph, const std::string &src, const std::string &dst) {
-    /// TODO
-    return 0;
-}
+using namespace std;
 
-extern "C" DLL_EXPORT BOOL APIENTRY DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
-{
-    switch (fdwReason)
-    {
-        case DLL_PROCESS_ATTACH:
-            // attach to process
-            // return FALSE to fail DLL load
-            break;
+const int MAXN = 105;
+const int INF = 30000;
 
-        case DLL_PROCESS_DETACH:
-            // detach from process
-            break;
+struct edge {
+    int from, to;
+    int w;
+};
 
-        case DLL_THREAD_ATTACH:
-            // attach to thread
-            break;
+int n, m;
+int dist[MAXN];
+vector <edge> e;
 
-        case DLL_THREAD_DETACH:
-            // detach from thread
+int main() {
+    //assert(freopen("input.txt","r",stdin));
+    //assert(freopen("output.txt","w",stdout));
+
+    scanf("%d %d", &n, &m);
+
+    for (int i = 1; i <= m; i++) {
+        edge curEdge;
+        scanf("%d %d %d", &curEdge.from, &curEdge.to, &curEdge.w);
+        e.push_back(curEdge);
+    }
+
+    for (int i = 1; i <= n; i++)
+        dist[i] = INF;
+    dist[1] = 0;
+
+    for (int i = 1; i <= n; i++) {
+        bool changed = false;
+        for (int j = 0; j < m; j++) {
+            int from = e[j].from, to = e[j].to, w = e[j].w;
+            if (dist[from] != INF && dist[from] + w < dist[to]) {
+                dist[to] = dist[from] + w;
+                changed = true;
+            }
+        }
+        if (!changed)
             break;
     }
-    return TRUE; // succesful
+
+    for (int i = 1; i <= n; i++)
+        printf("%d ", dist[i]);
+    return 0;
 }

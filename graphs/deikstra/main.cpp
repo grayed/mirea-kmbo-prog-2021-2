@@ -8,36 +8,33 @@
 /// typedef std::map<std::string, float> weight_map;    /// название вершины -> вес ребра к этой вершине
 /// typedef std::map<std::string, weight_map> graph;    /// название вершины -> набор вершин, в которые можно попасть из данной
 
-float DLL_EXPORT shortest_length(const graph &graph, const std::string &src, const std::string &dst) {
-    std::map<std::string, float> labels;
-    std::set<std::string> tovisit;
+float DLL_EXPORT shortest_length(const graph& graph, const string src, const string dst) {
+    if (graph.find(src) == graph.end() || graph.find(dst) == graph.end())
+        return -1;
 
-    /// Проставить метки
-    for (const auto &kv : graph) {
-        if (kv.first == src)
-            labels[kv.first] = 0;
-        else
-            labels[kv.first] = std::numeric_limits<float>::infinity();
-        tovisit.insert(kv.first);
+    map<string, bool> used;
+    map<string, float> path;
+    for (const auto& g : graph) {
+        used.insert({ g.first, false });
+        path.insert({ g.first, 1e9 });
     }
 
-    while (tovisit.size() > 0) {
-        /// 1. Выбираем не посещённую вершину с наименьшей меткой
-        auto vi = std::min_element(tovisit.begin(), tovisit.end(),
-                   [labels](const std::string &v1, const std::string &v2) { return labels.at(v1) < labels.at(v2); });
-        /// 2. Вычисляем метки для соседей, для каждого соседа записываем вычисленную метку, если она меньше существующей
-        for (const auto &neighbor : graph.at(*vi)) {
-            if (tovisit.find(neighbor.first) == tovisit.end())
-                continue;   /// вершина уже была посещена
+    path[src] = 0;
+    string v;
+    for (const auto& g : graph) {
+        for (const auto& to : g.second)
+            if (!used[to.first] && (path[to.first] < path[v]))
+                v = to.first;
+        used[v] = true;
 
-            /// neighbor.first - имя соседней вершины
-            /// neighbor.second - расстояние до соседней вершины
-
-            labels[neighbor.first] = std::min(labels[*vi] + neighbor.second, labels[neighbor.first]);
-        }
+        for (const auto& to : g.second)
+            if (!used[to.first])
+                path[to.first] = min(path[to.first], path[v] + to.second);
     }
 
-    return 0;
+
+    if (path[dst] == 1e9) return -1;
+    return path[dst];
 }
 
 extern "C" DLL_EXPORT BOOL APIENTRY DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
