@@ -5,39 +5,34 @@
 
 #include <common.h>
 
-/// typedef std::map<std::string, float> weight_map;    /// название вершины -> вес ребра к этой вершине
-/// typedef std::map<std::string, weight_map> graph;    /// название вершины -> набор вершин, в которые можно попасть из данной
-
 float DLL_EXPORT shortest_length(const graph &graph, const std::string &src, const std::string &dst) {
-    std::map<std::string, float> labels;
-    std::set<std::string> tovisit;
+	std::map<std::string,float> path;
+	std::map<std::string, bool> used;
+	for (auto V : graph) {
+		path.insert({ V.first, inf });
+		path.insert({ V.first,false });
+	}
+	path[src] = 0;
+	for (auto V : graph) {
+		std::string v = "new";
+		weight_map  d;
+		for (auto k : V.second)
+			if (used[k.first] == false && (v == "new" || path[k.first] < path[v])) {
+				v = k.first;
+				d[v] = k.second;
+			}
 
-    /// Проставить метки
-    for (const auto &kv : graph) {
-        if (kv.first == src)
-            labels[kv.first] = 0;
-        else
-            labels[kv.first] = std::numeric_limits<float>::infinity();
-        tovisit.insert(kv.first);
-    }
+		if (path[v] == inf)
+			break;
+		used[v] = true;
 
-    while (tovisit.size() > 0) {
-        /// 1. Выбираем не посещённую вершину с наименьшей меткой
-        auto vi = std::min_element(tovisit.begin(), tovisit.end(),
-                   [labels](const std::string &v1, const std::string &v2) { return labels.at(v1) < labels.at(v2); });
-        /// 2. Вычисляем метки для соседей, для каждого соседа записываем вычисленную метку, если она меньше существующей
-        for (const auto &neighbor : graph.at(*vi)) {
-            if (tovisit.find(neighbor.first) == tovisit.end())
-                continue;   /// вершина уже была посещена
-
-            /// neighbor.first - имя соседней вершины
-            /// neighbor.second - расстояние до соседней вершины
-
-            labels[neighbor.first] = std::min(labels[*vi] + neighbor.second, labels[neighbor.first]);
-        }
-    }
-
-    return 0;
+		for (auto k : d) {
+			std::string to = k.first;
+			float len = k.second;
+			path[to] = min(path[v] + len, path[to]);
+		}
+	}
+	return path[dst];
 }
 
 extern "C" DLL_EXPORT BOOL APIENTRY DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
@@ -61,5 +56,5 @@ extern "C" DLL_EXPORT BOOL APIENTRY DllMain(HINSTANCE hinstDLL, DWORD fdwReason,
             // detach from thread
             break;
     }
-    return TRUE; // succesful
+    return TRUE; // successful
 }
