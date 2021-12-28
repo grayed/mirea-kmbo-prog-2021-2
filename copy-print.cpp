@@ -2,15 +2,6 @@
 #include <iostream>
 #include <cstdlib>
 
-// Домашнее задание:
-//
-// 1. Дореализовать copy_array() и print_array()
-//
-// 2. Реализовать функцию поиска минимума в заданном массиве:
-//       const T *where, size_t count, const T &what
-//     Должна возвращать индекс найденного элемента (-1 если не найден,
-//     но 0 для пустого массива).
-
 using namespace std;
 
 template<typename T>
