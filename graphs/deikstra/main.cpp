@@ -8,42 +8,36 @@
 /// typedef std::map<std::string, float> weight_map;    /// название вершины -> вес ребра к этой вершине
 /// typedef std::map<std::string, weight_map> graph;    /// название вершины -> набор вершин, в которые можно попасть из данной
 
-float DLL_EXPORT shortest_length(const graph &graph, const std::string &src, const std::string &dst)
-{
-	auto search_1 = graph.find(src);
-	auto search_2 = graph.find(dst);
+float DLL_EXPORT shortest_length(const graph &graph, const std::string &src, const std::string &dst) {
+    std::map<std::string, float> labels;
+    std::set<std::string> tovisit;
 
-	if (search_1 == graph.end() || search_2 == graph.end())
-		return -1;
+    /// Проставить метки
+    for (const auto &kv : graph) {
+        if (kv.first == src)
+            labels[kv.first] = 0;
+        else
+            labels[kv.first] = std::numeric_limits<float>::infinity();
+        tovisit.insert(kv.first);
+    }
 
-	std::map<std::string, float> v;
-	std::map<std::string, bool> u;
-	for (const auto& g : graph) {
-		u.insert({ g.first, false });
-		v.insert({ g.first, INF });
-	}
+    while (tovisit.size() > 0) {
+        /// 1. Выбираем не посещённую вершину с наименьшей меткой
+        auto vi = std::min_element(tovisit.begin(), tovisit.end(),
+                   [labels](const std::string &v1, const std::string &v2) { return labels.at(v1) < labels.at(v2); });
+        /// 2. Вычисляем метки для соседей, для каждого соседа записываем вычисленную метку, если она меньше существующей
+        for (const auto &neighbor : graph.at(*vi)) {
+            if (tovisit.find(neighbor.first) == tovisit.end())
+                continue;   /// вершина уже была посещена
 
-	v[src] = 0;
-	std::string temp;
-	for (const auto& g : graph) 
-	{
-		float min = INF;
-		for (const auto& w : g.second)
-			if (!u[w.first] && v[w.first] < min) 
-			{
-				min = v[w.first];
-				temp = w.first;
-			}
-		u[temp] = true;
+            /// neighbor.first - имя соседней вершины
+            /// neighbor.second - расстояние до соседней вершины
 
-		for (const auto& w : g.second)
-			if (w.second != -1 && !u[w.first] && v[temp] + w.second < v[w.first])
-				v[w.first] = v[temp] + w.second;
-	}
+            labels[neighbor.first] = std::min(labels[*vi] + neighbor.second, labels[neighbor.first]);
+        }
+    }
 
-	if (v[dst] == INF)
-		return -1;
-	return v[dst];
+    return 0;
 }
 
 extern "C" DLL_EXPORT BOOL APIENTRY DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
