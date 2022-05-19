@@ -26,13 +26,13 @@ void print_array(const T *parr, size_t count) {
 }
 
 template<typename T>
-size_t findMin(const T* parr, size_t count)
+size_t FindMin(const T* parr, size_t count)
 {
 	size_t min = 0;
 	if (count == 0)
 		return min;
 	T elem = parr[0];
-	for (size_t i = 1; i < count; i++)
+	for (size_t i = 0; i < count; i++)
 	{
 		if (parr[i] < elem)
 		{
@@ -43,12 +43,13 @@ size_t findMin(const T* parr, size_t count)
 	return min;
 }
 
-int main(int argc, char **argv) {
-    int arr[20], arr2[20];
-    for (auto i = 0; i < sizeof(arr)/sizeof(arr[0]); i++)
+int main() {
+	const int array_size = 20;
+    int arr[array_size], arr2[array_size];
+    for (auto i = 0; i < array_size; i++)
         arr[i] = rand();
-    copy_array(arr, arr2, sizeof(arr)/sizeof(arr[0]));
-    print_array(arr, sizeof(arr)/sizeof(arr[0]));
-    print_array(arr2, sizeof(arr2)/sizeof(arr2[0]));
+    copy_array(arr, arr2, array_size);
+    print_array(arr, array_size);
+    print_array(arr2, array_size);
     return 0;
 }
