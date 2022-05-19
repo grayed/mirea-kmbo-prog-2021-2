@@ -114,7 +114,6 @@ vector<size_t> Dijkstra(graph g, size_t start, size_t end)
                     end = i;
                     proceed[i] = true;
                     path.push_back(i);
-                    break;
                 }
             }
         }
