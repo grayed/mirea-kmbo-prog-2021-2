@@ -1,65 +1,149 @@
-#include <algorithm>
-#include <limits>
-#include <map>
-#include <set>
+#include <iostream>
+#include <vector>
+#include <stack>
+#include <istream>
 
-#include <common.h>
+using namespace std;
 
-/// typedef std::map<std::string, float> weight_map;    /// название вершины -> вес ребра к этой вершине
-/// typedef std::map<std::string, weight_map> graph;    /// название вершины -> набор вершин, в которые можно попасть из данной
+typedef vector<vector<int>> graph;
 
-float DLL_EXPORT shortest_length(const graph &graph, const std::string &src, const std::string &dst) {
-    std::map<std::string, float> labels;
-    std::set<std::string> tovisit;
+graph init_graph(istream& input)
+{
+    size_t nvertice;
+    cout << "Количество вершин: ";
+    cin >> nvertice;
 
-    /// Проставить метки
-    for (const auto &kv : graph) {
-        if (kv.first == src)
-            labels[kv.first] = 0;
-        else
-            labels[kv.first] = std::numeric_limits<float>::infinity();
-        tovisit.insert(kv.first);
+    size_t nedges;
+    cout << "\nКоличество ребер: ";
+    cin >> nedges;
+
+    cout << "\n";
+
+    graph graph_matrix;
+    vector<int> tmp;
+
+    for (size_t i = 0; i < nvertice; i++)
+    {
+        for (size_t j = 0; j < nvertice; j++)
+        {
+            if (j == i)
+                tmp.push_back(0);
+            else
+                tmp.push_back(-1);
+        }
+        graph_matrix.push_back(tmp);
+        tmp.clear();
     }
 
-    while (tovisit.size() > 0) {
-        /// 1. Выбираем не посещённую вершину с наименьшей меткой
-        auto vi = std::min_element(tovisit.begin(), tovisit.end(),
-                   [labels](const std::string &v1, const std::string &v2) { return labels.at(v1) < labels.at(v2); });
-        /// 2. Вычисляем метки для соседей, для каждого соседа записываем вычисленную метку, если она меньше существующей
-        for (const auto &neighbor : graph.at(*vi)) {
-            if (tovisit.find(neighbor.first) == tovisit.end())
-                continue;   /// вершина уже была посещена
+    size_t start;
+    size_t end;
+    int weight;
 
-            /// neighbor.first - имя соседней вершины
-            /// neighbor.second - расстояние до соседней вершины
+    for (size_t i = 0; i < nedges; i++)
+    {
+        input >> start >> end >> weight;
+        graph_matrix[start][end] = weight;
+    }
 
-            labels[neighbor.first] = std::min(labels[*vi] + neighbor.second, labels[neighbor.first]);
+    return graph_matrix;
+}
+
+
+vector<size_t> Dijkstra(graph g, size_t start, size_t end)
+{
+    vector<size_t> path;
+    vector<int> min_path;
+    vector<int> tmp;
+    size_t nvertice = g.size();
+
+    for (size_t j = 0; j < nvertice; j++)
+    {
+        min_path.push_back(-1);
+    }
+
+    min_path[start] = 0;
+    bool* discovered = new bool[nvertice];
+    bool* proceed = new bool[nvertice];
+
+    for (size_t i = 0; i < nvertice; i++)
+    {
+        discovered[i] = false;
+        proceed[i] = false;
+    }
+
+    stack<size_t> need_to_visit;
+    need_to_visit.push(start);
+    discovered[start] = true;
+
+    while (!need_to_visit.empty())
+    {
+        size_t vertice = need_to_visit.top();
+        need_to_visit.pop();
+        proceed[vertice] = true;
+
+        for (size_t i = 0; i < nvertice; i++)
+        {
+            if (discovered[i] == false && g[vertice][i] > 0)
+            {
+                need_to_visit.push(i);
+                discovered[i] = true;
+            }
+        }
+        for (size_t i = 0; i < nvertice; i++)
+        {
+            if ((min_path[vertice] + g[vertice][i] < min_path[i] || min_path[i] < 1) && g[vertice][i] != -1)
+                min_path[i] = min_path[vertice] + g[vertice][i];
         }
     }
 
-    return 0;
+    for (size_t i = 0; i < nvertice; i++)
+        proceed[i] = false;
+
+    proceed[end] = true;
+    path.push_back(end);
+
+    while (end != start)
+    {
+        for (size_t i = 0; i < nvertice; i++)
+        {
+            if (g[i][end] > 0 && !proceed[i])
+            {
+                int temp = min_path[end] - g[i][end];
+                if (temp == min_path[i])
+                {
+                    end = i;
+                    proceed[i] = true;
+                    path.push_back(i);
+                }
+            }
+        }
+    }
+
+    reverse(path.begin(), path.end());
+    return path;
 }
 
-extern "C" DLL_EXPORT BOOL APIENTRY DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
+
+void print_graph(graph g)
 {
-    switch (fdwReason)
+    for (auto it : g)
     {
-        case DLL_PROCESS_ATTACH:
-            // attach to process
-            // return FALSE to fail DLL load
-            break;
-
-        case DLL_PROCESS_DETACH:
-            // detach from process
-            break;
-
-        case DLL_THREAD_ATTACH:
-            // attach to thread
-            break;
-
-        case DLL_THREAD_DETACH:
-            // detach from thread
-            break;
+        for (auto w : it)
+            cout << w << " ";
+        cout << "\n";
     }
-    return TRUE; // succesful
+}
+
+int main()
+{
+    setlocale(LC_ALL, "Russian");
+
+    graph g = init_graph(cin);
+    print_graph(g);
+
+    auto path = Dijkstra(g, 0, 3);
+    for (auto it : path)
+    {
+        cout << it << " ";
+    }
 }
