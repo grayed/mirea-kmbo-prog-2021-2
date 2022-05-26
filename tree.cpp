@@ -4,6 +4,42 @@
 
 using namespace std;
 
+///
+/// Домашнее задание:
+///
+/// 1.  Добавить findMin() и findMax() в классе Node, аналогичные таковым в Tree;
+///     они должны искать в поддереве, корнем которого является текущий узел.
+///
+/// 2.  Реализовать малый правый поворот, а также большие левый и правый повороты
+///     в классе Tree, по аналогии с малым левым поворотом.
+///
+/// 3.  Реализовать префиксный оператор «++» для итератора.
+///
+/// 4.  Реализовать Tree::findNearest() и Tree::deleteNode().
+///
+/// 5.  Реализовать юнит-тесты на все публичные методы классов Tree и TreeIterator,
+///     кроме тривиальных. Прогонять эти тесты в функции main().
+///
+
+/**
+1. Добавление.
+    а) (интерфейсный способ) Создаём дерево, вызываем addNode(), проверяем:
+        * что элемент добавился?
+        * что элемент добавился по соседству с определёнными другими элементами?
+        * сравнить дерево целиком с эталоном?
+    б) (инвазивный) Конструируем объекты Node и Tree вручную, затем вызываем addNode(), проверяем (то же).
+2. Удаление.
+    а) Создаём дерево, вызываем removeNode(), проверяем:
+        * что элемента в дереве больше нет?
+        * что бывшие соседи элемента получили определённое новое состояние?
+        * сравнить дерево целиком с эталоном?
+    б) Конструируем объекты Node и Tree вручную, затем вызываем removeNode(), проверяем (то же).
+3. Проход по дереву.
+    а) Создаём дерево, создаём итератор, в цикле сдвигаем итератор, проверяя на каждом шаге, что
+       мы перешли к определённому элементу.
+    б) То же самое, но дерево создаётся вручную.
+*/
+
 class Tree;
 class TreeIterator;
 
@@ -66,7 +102,10 @@ public:
     Node* operator->() { return node; }
     const Node* operator->() const { return node; }
     
-    TreeIterator& operator++() {
+    /// TreeIterator it;  ++it      it++
+    
+    TreeIterator& operator++() 
+    {        /// префиксный   ++it
         if (node->right) {
             node = node->right->findMin();
         }
@@ -87,7 +126,7 @@ public:
         return *this;
     }
     
-    TreeIterator operator++(int) {
+    TreeIterator operator++(int) {      /// постфиксный   it++
         TreeIterator old(node);
         ++*this;
         return old;
@@ -299,7 +338,6 @@ public:
     void deleteNode(Node* node) {
         Node* closestMin = node->left;
 
-        // find max node in left subtree of node being deleted 
         for (auto temp = node->left; temp;) {
             closestMin = temp; 
             temp = temp->right;
@@ -309,11 +347,9 @@ public:
         if (closestMin) {
             closest = closestMin;
 
-            // changing node to be deleted to max node in left subtree
             closestMin->right = node->right;
             closestMin->left = nullptr;
             if (closestMin->parent != node) {
-                // if closestMin has subtree
                 closestMin->parent->right = closestMin->left; 
                 if (closestMin->left) {
                     closestMin->left->parent = closestMin->parent;
