@@ -5,21 +5,37 @@
 using namespace std;
 
 
+///
+/// Задание:
+///
+/// 1. Реализовать добавление и удаление узлов в бинарную кучу.
+/// 2. Реализовать итератор, проходящий от самой левой до самой правой вершины дерева.
+/// 3. Написать юнит-тесты для всех перечисленных выше задач.
+///
+
+
+
+
 template<class T>
 class HeapOverArray {
     vector<T> v;
 
 public:
     HeapOverArray() {}
-    HeapOverArray(const vector<T>& initv) : v(initv) {}
+    HeapOverArray(const vector<T>& initv) : v(initv) {}   /// Требуется, чтобы массив был заранее упорядочен
 
     const vector<T>& getVector() const { return v; }
+    
+    /// Если такой элемент уже существует, то изменения не вносятся, а функция возвращает false.
+    /// Если элемент добавлен, то функция возвращает true.
     bool addNode(const T& o) {
         size_t pos = v.size();
         if (pos == 0) {
             v.push_back(o);
             return true;
         }
+        
+        //добавим поиск индекса, чтобы было легче работать с удалением
         size_t parent_pos = (pos - 1) / 2;
         v.push_back(o);
         while (pos != 0 && o > v[parent_pos]) {
@@ -84,6 +100,7 @@ public:
         return v[0];
     }
 
+    //добавление
     void pop() {
         assert(v.size() > 0);
         T removed_element = v[0];
@@ -93,7 +110,7 @@ public:
     size_t size() const {
         return v.size();
     }
-
+    //освобождение
     bool empty() const {
         return (v.size() == 0);
     }
@@ -173,7 +190,7 @@ public:
         return iterator();
     }
 };
-
+    /// Тест сделан через функцию 
 template<class T>
 bool testHeapAdd(const vector<T>& initial, const T& value,
         const vector<T>& expected) 
@@ -196,67 +213,17 @@ bool testHeapAdd(const vector<T>& initial, const T& value,
     return true;
 }
 
-template<class T>
-bool testHeapIterator(const vector<T>& initial,
-        const vector<T>& expected)
-{
-    HeapOverArray<T> heap(initial);
-    vector<T> v;
-    for (auto it = heap.begin(); it; it++) {
-        v.push_back(*it);
-    }
-    if (v.size() != expected.size()) {
-        cerr << "size difference: expected " << expected.size() << 
-            ", got " << v.size() << endl;
-        return false; 
-    }
-    for (size_t i = 0; i < expected.size(); i++) {
-        if (v[i] != expected[i]) {
-            cerr << "diffecrence in " << i << ": expected " << 
-                expected[i] << ", got " << v[i] << endl;
-            return false;
-        }
-    }
-    return true;
-}
 
-template<class T>
-bool testHeapRemove(const vector<T>& initial, const T& value,
-        const vector<T>& expected) 
-{
-    HeapOverArray<T> heap(initial);
-    heap.removeNode(value);
-    auto v = heap.getVector();
-    if (v.size() != expected.size()) {
-        cerr << "size difference: expected " << expected.size() << 
-            ", got " << v.size() << endl;
-        return false; 
-    }
-    for (size_t i = 0; i < expected.size(); i++) {
-        if (v[i] != expected[i]) {
-            cerr << "diffecrence in " << i << ": expected " << 
-                expected[i] << ", got " << v[i] << endl;
-            return false;
-        }
-    }
-    return true;
-}
+
+
 
 int main() {
     vector<int> initial = {7, 3, 4};
     vector<int> expected = {8, 7, 4, 3};
     testHeapAdd(initial, 8, expected);
 
-    initial = {100, 70, 60, 25, 10, 40, 5, 8, 2, 9, 1, 3};
-    expected = {8, 25, 2, 70, 9, 10, 1, 100, 3, 40, 60, 5};
-    testHeapIterator(initial, expected);
+    
 
-    initial = {100, 70, 60, 25, 10, 40, 5, 8, 2, 9, 1, 3};
-    expected = {100, 25, 60, 8, 10, 40, 5, 3, 2, 9, 1};
-    testHeapRemove(initial, 70, expected);
-
-    initial = {100, 70, 60, 25, 10, 40, 5, 8, 2, 9, 1, 30};
-    expected = {100, 30, 60, 25, 10, 40, 5, 8, 2, 9, 1};
-    testHeapRemove(initial, 70, expected);
+    
     return 0;
 }
