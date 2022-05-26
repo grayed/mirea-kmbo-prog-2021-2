@@ -3,135 +3,177 @@
 #include <string>
 
 ///
-/// Р”РѕРјР°С€РЅРµРµ Р·Р°РґР°РЅРёРµ:
+/// Домашнее задание:
 ///
-/// 1.  Р”РѕР±Р°РІРёС‚СЊ findMin() Рё findMax() РІ РєР»Р°СЃСЃРµ Node, Р°РЅР°Р»РѕРіРёС‡РЅС‹Рµ С‚Р°РєРѕРІС‹Рј РІ Tree;
-///     РѕРЅРё РґРѕР»Р¶РЅС‹ РёСЃРєР°С‚СЊ РІ РїРѕРґРґРµСЂРµРІРµ, РєРѕСЂРЅРµРј РєРѕС‚РѕСЂРѕРіРѕ СЏРІР»СЏРµС‚СЃСЏ С‚РµРєСѓС‰РёР№ СѓР·РµР».
+/// 1.  Добавить findMin() и findMax() в классе Node, аналогичные таковым в Tree;
+///     они должны искать в поддереве, корнем которого является текущий узел.
 ///
-/// 2.  Р РµР°Р»РёР·РѕРІР°С‚СЊ РјР°Р»С‹Р№ РїСЂР°РІС‹Р№ РїРѕРІРѕСЂРѕС‚, Р° С‚Р°РєР¶Рµ Р±РѕР»СЊС€РёРµ Р»РµРІС‹Р№ Рё РїСЂР°РІС‹Р№ РїРѕРІРѕСЂРѕС‚С‹
-///     РІ РєР»Р°СЃСЃРµ Tree, РїРѕ Р°РЅР°Р»РѕРіРёРё СЃ РјР°Р»С‹Рј Р»РµРІС‹Рј РїРѕРІРѕСЂРѕС‚РѕРј.
+/// 2.  Реализовать малый правый поворот, а также большие левый и правый повороты
+///     в классе Tree, по аналогии с малым левым поворотом.
 ///
-/// 3.  Р РµР°Р»РёР·РѕРІР°С‚СЊ РїСЂРµС„РёРєСЃРЅС‹Р№ РѕРїРµСЂР°С‚РѕСЂ В«++В» РґР»СЏ РёС‚РµСЂР°С‚РѕСЂР°.
+/// 3.  Реализовать префиксный оператор «++» для итератора.
 ///
-/// 4.  Р РµР°Р»РёР·РѕРІР°С‚СЊ Tree::findNearest() Рё Tree::deleteNode().
+/// 4.  Реализовать Tree::findNearest() и Tree::deleteNode().
 ///
-/// 5.  Р РµР°Р»РёР·РѕРІР°С‚СЊ СЋРЅРёС‚-С‚РµСЃС‚С‹ РЅР° РІСЃРµ РїСѓР±Р»РёС‡РЅС‹Рµ РјРµС‚РѕРґС‹ РєР»Р°СЃСЃРѕРІ Tree Рё TreeIterator,
-///     РєСЂРѕРјРµ С‚СЂРёРІРёР°Р»СЊРЅС‹С…. РџСЂРѕРіРѕРЅСЏС‚СЊ СЌС‚Рё С‚РµСЃС‚С‹ РІ С„СѓРЅРєС†РёРё main().
+/// 5.  Реализовать юнит-тесты на все публичные методы классов Tree и TreeIterator,
+///     кроме тривиальных. Прогонять эти тесты в функции main().
 ///
 
 /**
-1. Р”РѕР±Р°РІР»РµРЅРёРµ.
-    Р°) (РёРЅС‚РµСЂС„РµР№СЃРЅС‹Р№ СЃРїРѕСЃРѕР±) РЎРѕР·РґР°С‘Рј РґРµСЂРµРІРѕ, РІС‹Р·С‹РІР°РµРј addNode(), РїСЂРѕРІРµСЂСЏРµРј:
-        * С‡С‚Рѕ СЌР»РµРјРµРЅС‚ РґРѕР±Р°РІРёР»СЃСЏ?
-        * С‡С‚Рѕ СЌР»РµРјРµРЅС‚ РґРѕР±Р°РІРёР»СЃСЏ РїРѕ СЃРѕСЃРµРґСЃС‚РІСѓ СЃ РѕРїСЂРµРґРµР»С‘РЅРЅС‹РјРё РґСЂСѓРіРёРјРё СЌР»РµРјРµРЅС‚Р°РјРё?
-        * СЃСЂР°РІРЅРёС‚СЊ РґРµСЂРµРІРѕ С†РµР»РёРєРѕРј СЃ СЌС‚Р°Р»РѕРЅРѕРј?
-    Р±) (РёРЅРІР°Р·РёРІРЅС‹Р№) РљРѕРЅСЃС‚СЂСѓРёСЂСѓРµРј РѕР±СЉРµРєС‚С‹ Node Рё Tree РІСЂСѓС‡РЅСѓСЋ, Р·Р°С‚РµРј РІС‹Р·С‹РІР°РµРј addNode(), РїСЂРѕРІРµСЂСЏРµРј (С‚Рѕ Р¶Рµ).
-
-2. РЈРґР°Р»РµРЅРёРµ.
-    Р°) РЎРѕР·РґР°С‘Рј РґРµСЂРµРІРѕ, РІС‹Р·С‹РІР°РµРј removeNode(), РїСЂРѕРІРµСЂСЏРµРј:
-        * С‡С‚Рѕ СЌР»РµРјРµРЅС‚Р° РІ РґРµСЂРµРІРµ Р±РѕР»СЊС€Рµ РЅРµС‚?
-        * С‡С‚Рѕ Р±С‹РІС€РёРµ СЃРѕСЃРµРґРё СЌР»РµРјРµРЅС‚Р° РїРѕР»СѓС‡РёР»Рё РѕРїСЂРµРґРµР»С‘РЅРЅРѕРµ РЅРѕРІРѕРµ СЃРѕСЃС‚РѕСЏРЅРёРµ?
-        * СЃСЂР°РІРЅРёС‚СЊ РґРµСЂРµРІРѕ С†РµР»РёРєРѕРј СЃ СЌС‚Р°Р»РѕРЅРѕРј?
-    Р±) РљРѕРЅСЃС‚СЂСѓРёСЂСѓРµРј РѕР±СЉРµРєС‚С‹ Node Рё Tree РІСЂСѓС‡РЅСѓСЋ, Р·Р°С‚РµРј РІС‹Р·С‹РІР°РµРј removeNode(), РїСЂРѕРІРµСЂСЏРµРј (С‚Рѕ Р¶Рµ).
-
-
-3. РџСЂРѕС…РѕРґ РїРѕ РґРµСЂРµРІСѓ.
-    Р°) РЎРѕР·РґР°С‘Рј РґРµСЂРµРІРѕ, СЃРѕР·РґР°С‘Рј РёС‚РµСЂР°С‚РѕСЂ, РІ С†РёРєР»Рµ СЃРґРІРёРіР°РµРј РёС‚РµСЂР°С‚РѕСЂ, РїСЂРѕРІРµСЂСЏСЏ РЅР° РєР°Р¶РґРѕРј С€Р°РіРµ, С‡С‚Рѕ
-       РјС‹ РїРµСЂРµС€Р»Рё Рє РѕРїСЂРµРґРµР»С‘РЅРЅРѕРјСѓ СЌР»РµРјРµРЅС‚Сѓ.
-    Р±) РўРѕ Р¶Рµ СЃР°РјРѕРµ, РЅРѕ РґРµСЂРµРІРѕ СЃРѕР·РґР°С‘С‚СЃСЏ РІСЂСѓС‡РЅСѓСЋ.
-
+1. Добавление.
+    а) (интерфейсный способ) Создаём дерево, вызываем addNode(), проверяем:
+        * что элемент добавился?
+        * что элемент добавился по соседству с определёнными другими элементами?
+        * сравнить дерево целиком с эталоном?
+    б) (инвазивный) Конструируем объекты Node и Tree вручную, затем вызываем addNode(), проверяем (то же).
+2. Удаление.
+    а) Создаём дерево, вызываем removeNode(), проверяем:
+        * что элемента в дереве больше нет?
+        * что бывшие соседи элемента получили определённое новое состояние?
+        * сравнить дерево целиком с эталоном?
+    б) Конструируем объекты Node и Tree вручную, затем вызываем removeNode(), проверяем (то же).
+3. Проход по дереву.
+    а) Создаём дерево, создаём итератор, в цикле сдвигаем итератор, проверяя на каждом шаге, что
+       мы перешли к определённому элементу.
+    б) То же самое, но дерево создаётся вручную.
 */
 
 class Tree;
+class TreeIterator;
 
-class Node {
-    Node *left, *right, *parent;
+class Node
+{
+    Node* left,
+        * right,
+        * parent;
+
     friend class Tree;
+    friend class TreeIterator;
 
 public:
     Node* getLeft() { return left; }
-    const Node* getLeft() const { return left; }
     Node* getRight() { return right; }
-    const Node* getRight() const { return right; }
     Node* getParent() { return parent; }
+    const Node* getLeft()   const { return left; }
+    const Node* getRight()  const { return right; }
     const Node* getParent() const { return parent; }
 
-    std::string name;
-    std::string description;
-    long price;
-
-    Node(const std::string &name_, Node *parent_ = nullptr)
-      : left(nullptr), right(nullptr), parent(parent_), name(name_)
-    { }
-
     Node* findMin() {
-        Node *node = this;
-        while (node->left)
+        auto  node = this;
+        while (node->left) {
             node = node->left;
+        }
         return node;
     }
 
     Node* findMax() {
-        Node *node = this;
-        while (node->right)
+        auto  node = this;
+        while (node->right) {
             node = node->right;
+        }
         return node;
     }
+
+    std::string name;
+    std::string description;
+
+    Node(const std::string& name_, Node* parent_ = nullptr) :
+        left(nullptr),
+        right(nullptr),
+        parent(parent_),
+        name(name_)
+    { }
 };
 
 class TreeIterator : public std::iterator<std::input_iterator_tag, Node> {
-    Node *node;
+    Node* node;
 
 public:
     TreeIterator() : node(nullptr) {}
-    TreeIterator(Node *node_) : node(node_) {}
+    TreeIterator(Node* node_) : node(node_) {}
 
-    bool operator == (const TreeIterator &other) const { return node == other.node; }
-    bool operator != (const TreeIterator &other) const { return node != other.node; }
+    bool operator == (const TreeIterator& other) const { return node == other.node; }
+    bool operator != (const TreeIterator& other) const { return node != other.node; }
 
     Node& operator * () { return *node; }
     const Node& operator * () const { return *node; }
 
     /// TreeIterator it;  ++it      it++
 
-    TreeIterator& operator++() {        /// РїСЂРµС„РёРєСЃРЅС‹Р№   ++it
-        /// 1. Р•СЃР»Рё РµСЃС‚СЊ СЌР»РµРјРµРЅС‚ СЃРїСЂР°РІР°, Р±РµСЂС‘Рј РµРіРѕ.
-        /// 2. РРЅР°С‡Рµ, РїРѕРґРЅРёРјР°РµРјСЃСЏ РЅР°РІРµСЂС…:
-        /// 2.1. Р•СЃР»Рё РјС‹ СѓР¶Рµ РЅР°РІРµСЂС…Сѓ, С‚Рѕ РїСЂРѕС…РѕРґ Р·Р°РєРѕРЅС‡РµРЅ (node РІС‹СЃС‚Р°РІР»СЏРµРј РІ nullptr).
-        /// 2.2. Р•СЃР»Рё РјС‹ Р±С‹Р»Рё РІ Р»РµРІРѕРј РїРѕРґРґРµСЂРµРІРµ, С‚Рѕ РІРѕР·РІСЂР°С‰Р°РµРј РїСЂР°РІС‹Р№ СЌР»РµРјРµРЅС‚ С‚РµРєСѓС‰РµРіРѕ СЂРѕРґРёС‚РµР»СЏ
-        /// 2.3. РРЅР°С‡Рµ, РїРµСЂРµС…РѕРґРёРј РЅР° С€Р°Рі 2.
+    TreeIterator& operator++() {        /// префиксный   ++it
+        /// 1. Если есть элемент справа, берём его.
+        /// 2. Иначе, поднимаемся наверх:
+        /// 2.1. Если мы уже наверху, то проход закончен (node выставляем в nullptr).
+        /// 2.2. Если мы были в левом поддереве, то возвращаем правый элемент текущего родителя
+        /// 2.3. Иначе, переходим на шаг 2.
 
-	// TODO
-
+        if (node->getRight() != nullptr)
+        {
+            node = node->getRight();
+        }
+        else
+        {
+            Node* temp;
+            while (true)
+            {
+                temp = node;
+                node = node->getParent();
+                if (node == nullptr)
+                    return *this;
+                else if (temp == node->getLeft() && node->getRight() != nullptr)
+                {
+                    node = node->getRight();
+                    return *this;
+                }
+            }
+        }
         return *this;
     }
-    TreeIterator operator++(int) {      /// РїРѕСЃС‚С„РёРєСЃРЅС‹Р№   it++
+    TreeIterator operator++(int) {      /// постфиксный   it++
         TreeIterator old(node);
-        ++*this;
+        ++* this;
         return old;
     }
 
     TreeIterator& operator--() {
-        /// РђРЅР°Р»РѕРіРёС‡РЅРѕ operator++()
+        /// Аналогично operator++()
+        if (node->getLeft()) {
+            node = node->getLeft();  //берем левый элемент
+        }
+        else {
+            Node* temp;
+            while (true) {
+                temp = node;
+                node = node->getParent();
+                if (node == nullptr) {
+                    return *this;
+                }
+                else if (temp == node->getRight() && node->getLeft() != nullptr) {
+                    node = node->getLeft();
+                    return *this;
+                }
+            }
+            return *this;
+        }
     }
     TreeIterator operator--(int) {
         TreeIterator old(node);
-        --*this;
+        --* this;
         return old;
     }
 };
 
 class Tree {
-    Node *root;
+    Node* root;
 
-    /// Р’С…РѕРґ: b > a, a - СЂРѕРґРёС‚РµР»СЊ b
-    /// Р’С‹С…РѕРґ: b - СЂРѕРґРёС‚РµР»СЊ a
-    void smallTurnLeft(Node *a, Node *b) {
-        /// 1. РџРѕРїСЂР°РІРёС‚СЊ right РґР»СЏ СЂРѕРґРёС‚РµР»СЏ (a)
-        /// 2. РџРѕРїСЂР°РІРёС‚СЊ parent (b)
-        /// 3. РџРѕРїСЂР°РІРёС‚СЊ parent (a)
-        /// 4. РџРµСЂРµРјРµСЃС‚РёС‚СЊ Р»РµРІРѕРіРѕ РїРѕС‚РѕРјРєРѕРј (b), СЃРґРµР»Р°РІ РµРіРѕ РїСЂР°РІС‹Рј РїРѕС‚РѕРјРєРѕРј (a)
-        /// 5. РРЅРІРµСЂС‚РёСЂРѕРІР°С‚СЊ РІР·Р°РёРјРѕСЃРІСЏР·СЊ (a) Рё (b)
+    /// Вход: b > a, a - родитель b
+    /// Выход: b - родитель a
+    void smallTurnLeft(Node* a, Node* b) {
+        /// 1. Поправить right для родителя (a)
+        /// 2. Поправить parent (b)
+        /// 3. Поправить parent (a)
+        /// 4. Переместить левого потомком (b), сделав его правым потомком (a)
+        /// 5. Инвертировать взаимосвязь (a) и (b)
 
         if (a->parent)
             a->parent->right = b;
@@ -141,19 +183,31 @@ class Tree {
             b->left->parent = a;
             a->right = b->left;
         }
+        //else{a->right = nullptr;}
         b->left = a;
     }
 
-    void smallTurnRight(Node *a, Node *b) {
-	// TODO
+    void smallTurnRight(Node* a, Node* b) {
+        if (a->parent)
+            a->parent->left = b;
+        b->parent = a->parent;
+        a->parent = b;
+        if (b->right) {
+            b->right->parent = a;
+            a->left = b->right;
+        }
+        //else{a->left = nullptr;}
+        b->right = a;
     }
 
-    void bigTurnLeft(Node *a, Node *b, Node *c) {
-	// TODO
+    void bigTurnLeft(Node* a, Node* b, Node* c) {
+        smallTurnRight(b, c);
+        smallTurnLeft(a, c);
     }
 
-    void bigTurnRight(Node *a, Node *b, Node *c) {
-	// TODO
+    void bigTurnRight(Node* a, Node* b, Node* c) {
+        smallTurnLeft(b, c);
+        smallTurnRight(a, c);
     }
 
 public:
@@ -161,27 +215,84 @@ public:
     const Node* getRoot() const { return root; }
 
     Tree() : root(nullptr) { }
-    Node* addNode(const std::string &name) {
-        Node *closest = findClosest(name);
+    Node* addNode(const std::string& name) {
+        Node* closest = findClosest(name);
         if (closest && closest->name == name)
             return nullptr;
-        Node *newNode = new Node(name, closest);
+        Node* newNode = new Node(name, closest);
 
-        /// 1. РћРїСЂРµРґРµР»РёС‚СЊСЃСЏ, Р±СѓРґРµРј РґРѕР±Р°РІР»СЏС‚СЊ Р»РµРІС‹Р№ РёР»Рё РїСЂР°РІС‹Р№ СЌР»РµРјРµРЅС‚ (СЂРѕРґРёС‚РµР»СЊ - closest).
-        /// 2. РџРѕСЃР»Рµ РґРѕР±Р°РІР»РµРЅРёСЏ РїРѕРґРЅРёРјР°РµРјСЃСЏ РЅР° СѓСЂРѕРІРµРЅСЊ РІС‹С€Рµ (РІ closest) Рё РїСЂРѕРІРµСЂСЏРµРј Р±Р°Р»Р°РЅСЃРёСЂРѕРІРєСѓ РґРµСЂРµРІР°
-        ///    РЎР±Р°Р»Р°РЅСЃРёСЂРѕРІР°РЅРѕ - РµСЃР»Рё СЂР°Р·РЅРёС†Р° РІС‹СЃРѕС‚ Р»РµРІРѕРіРѕ Рё РїСЂР°РІРѕРіРѕ РїРѕРґРґРµСЂРµРІСЊРµРІ РЅРµ Р±РѕР»РµРµ 1.
-        /// 3. Р•СЃР»Рё РЅРµ СЃР±Р°Р»Р°РЅСЃРёСЂРѕРІР°РЅРѕ, С‚Рѕ РІС‹РїРѕР»РЅСЏРµРј РїРѕРІРѕСЂРѕС‚.
-        ///    4 РІРёРґР° РїРѕРІРѕСЂРѕС‚РѕРІ:
-        ///       РјР°Р»С‹Р№ Р»РµРІС‹Р№ РїРѕРІРѕСЂРѕС‚
-        ///       РјР°Р»С‹Р№ РїСЂР°РІС‹Р№ РїРѕРІРѕСЂРѕС‚
-        ///       Р±РѕР»СЊС€РѕР№ Р»РµРІС‹Р№ РїРѕРІРѕСЂРѕС‚
-        ///       Р±РѕР»СЊС€РѕР№ РїСЂР°РІС‹Р№ РїРѕРІРѕСЂРѕС‚
-        ///     РћРїСЂРµРґРµР»РёС‚СЊ РІРёРґ С‚СЂРµР±СѓРµРјРѕРіРѕ РїРѕРІРѕСЂРѕС‚Р° Рё РїСЂРѕРёР·РІРµСЃС‚Рё РµРіРѕ
+        if (closest == nullptr) {
+            Node* maxNode = findMax();
+            if (maxNode == nullptr) {
+                root = newNode;
+                return root;
+            }
+            newNode->parent = maxNode;
+            maxNode->right = newNode;
+        }
+        else {
+            if (closest->left) {
+                closest->left->parent = newNode;
+            }
+            newNode->left = closest->left;
+            closest->left = newNode;
+            newNode->parent = closest;
+        }
+
+        Node* test = testToBalance(newNode->parent);
+        if (test) {
+            int leftHeight = findHeight(test->getLeft());
+            int rightHeight = findHeight(test->getRight());
+            if (leftHeight > rightHeight) {
+                Node* child = test->getLeft();
+                leftHeight = findHeight(child->getLeft());
+                rightHeight = findHeight(child->getRight());
+                if (leftHeight >= rightHeight)
+                    smallTurnRight(test, child);
+                else
+                    bigTurnLeft(test, child, child->getRight());
+            }
+            else {
+                Node* child = test->getRight();
+                leftHeight = findHeight(child->getLeft());
+                rightHeight = findHeight(child->getRight());
+                if (leftHeight <= rightHeight)
+                    smallTurnLeft(test, child);
+                else
+                    bigTurnRight(test, child, child->getLeft());
+            }
+            if (test == root)
+                root = test->parent;
+        }
+
+        /// 1. Определиться, будем добавлять левый или правый элемент (родитель - closest).
+        /// 2. После добавления поднимаемся на уровень выше (в closest) и проверяем балансировку дерева
+        ///    Сбалансировано - если разница высот левого и правого поддеревьев не более 1.
+        /// 3. Если не сбалансировано, то выполняем поворот.
+        ///    4 вида поворотов:
+        ///       малый левый поворот
+        ///       малый правый поворот
+        ///       большой левый поворот
+        ///       большой правый поворот
+        ///     Определить вид требуемого поворота и произвести его
 
         return newNode;
     }
 
-    Node* findNode(const std::string &name) {
+    Node* testToBalance(Node* node) {
+        int left, right;
+        while (node) {
+            left = findHeight(node->left);
+            right = findHeight(node->right);
+            if (abs(left - right) >= 2) {
+                return node;
+            }
+            node = node->parent;
+        }
+        return nullptr;
+    }
+
+    Node* findNode(const std::string& name) {
         for (auto node = root; node;) {
             auto res = name.compare(node->name);
             if (res == 0)
@@ -195,7 +306,7 @@ public:
     }
 
     Node* findMin() {
-        Node *node = root;
+        Node* node = root;
         if (!node)
             return nullptr;
         while (node->left)
@@ -204,7 +315,7 @@ public:
     }
 
     Node* findMax() {
-        Node *node = root;
+        Node* node = root;
         if (!node)
             return nullptr;
         while (node->right)
@@ -212,15 +323,47 @@ public:
         return node;
     }
 
-    /// РС‰РµС‚ СѓР·РµР» СЃ С‚Р°РєРёРј Р¶Рµ, РёР»Рё РјР°РєСЃРёРјР°Р»СЊРЅРѕ Р±Р»РёР·РєРёРј СЃРїСЂР°РІР° ("Р±РѕР»СЊС€РёРј") Р·РЅР°С‡РµРЅРёРµРј name.
-    Node* findClosest(const std::string &name) {
+    int findHeight(const Node* node) {
+        if (node == nullptr)
+            return 0;
+        int left = findHeight(node->getLeft())
+            , right = findHeight(node->getRight());
+        return std::max(left, right) + 1;
+    }
+
+    /// Ищет узел с таким же, или максимально близким справа ("большим") значением name.
+    Node* findClosest(const std::string& name) {
+        Node* cur = root;
+        if (cur) {
+            while (true)
+            {
+                if (cur->right != nullptr && name.compare(cur->right->name) > 0)
+                {
+                    cur = cur->right;
+                }
+                else
+                {
+                    Node* temp = cur;
+                    while (temp->left != nullptr && temp->left->right == nullptr && name.compare(temp->getLeft()->name) < 0)
+                    {
+                        temp = temp->left;
+                    }
+                    cur = temp;
+                }
+                break;
+            }
+        }
+        return cur;
+
     }
 
     void deleteNode(Node* node) {
     }
 
-    TreeIterator begin() {}     /// Р’РѕР·РІСЂР°С‰Р°РµС‚ РёС‚РµСЂР°С‚РѕСЂ, СѓРєР°Р·С‹РІР°СЋС‰РёР№ РЅР° РјРёРЅРёРјР°Р»СЊРЅС‹Р№ СЌР»РµРјРµРЅС‚
-    TreeIterator end() {}       /// Р’РѕР·РІСЂР°С‰Р°РµС‚ РёС‚РµСЂР°С‚РѕСЂ, СѓРєР°Р·С‹РІР°СЋС‰РёР№ РЅР° nullptr Node
+    TreeIterator begin() { return findMin(); }     /// Возвращает итератор, указывающий на минимальный элемент
+    TreeIterator end() {
+        return findMax();
+    }       /// Возвращает итератор, указывающий на nullptr Node
 };
 
 
@@ -233,7 +376,7 @@ public:
 
 
 void testAddNode() {
-    Tree *result = new Tree();
+    Tree* result = new Tree();
 
     auto abc = result->addNode("Abc");
     assert(abc != nullptr);
@@ -250,7 +393,7 @@ void testAddNode() {
     assert(def->getParent() == abc);
     assert(abc->getRight() == def);
 
-    /// РџСЂРѕРІРµСЂСЏРµРј РјР°Р»С‹Р№ Р»РµРІС‹Р№ РїРѕРІРѕСЂРѕС‚
+    /// Проверяем малый левый поворот
     auto ghi = result->addNode("Ghi");
     assert(ghi != nullptr);
     assert(ghi->name == "Ghi");
@@ -265,7 +408,59 @@ void testAddNode() {
     assert(abc->getLeft() == nullptr);
     assert(abc->getRight() == nullptr);
 
-    /// Р—Р°РґР°С‡Р°: РґРѕРїРёСЃР°С‚СЊ С‚РµСЃС‚, РїСЂРѕРІРµСЂСЏСЏ РјР°Р»С‹Р№ РїСЂР°РІС‹Р№ Рё РѕР±Р° Р±РѕР»СЊС€РёС… РїРѕРІРѕСЂРѕС‚Р°
+    auto abb = result->addNode("Abb");
+    assert(abb != nullptr);
+    assert(abb->name == "Abb");
+    assert(abb->description == "");
+    assert(abb->getParent() == abc);
+    assert(abb->getLeft() == nullptr);
+    assert(abb->getRight() == nullptr);
+    assert(abc->getParent() == def);
+    assert(abc->getLeft() == abb);
+    assert(abc->getRight() == nullptr);
+
+    auto ab = result->addNode("Ab");
+    assert(ab != nullptr);
+    assert(ab->name == "Ab");
+    assert(ab->description == "");
+    assert(ab->getParent() == abb);
+    assert(ab->getLeft() == nullptr);
+    assert(ab->getRight() == nullptr);
+    assert(abc->getParent() == nullptr);
+    assert(abc->getLeft() == abb);
+    assert(abc->getRight() == def);
+    assert(def->getParent() == abc);
+    assert(def->getLeft() == nullptr);
+    assert(def->getRight() == ghi);
+
+    auto abbbbb = result->addNode("Abbbbb");
+    assert(abbbbb != nullptr);
+    assert(abbbbb->name == "Abbbbb");
+    assert(abbbbb->description == "");
+    assert(abbbbb->getParent() == abb);
+    assert(abbbbb->getLeft() == ab);
+    assert(abbbbb->getRight() == nullptr);
+    assert(abb->getParent() == nullptr);
+    assert(abb->getLeft() == abbbbb);
+    assert(abb->getRight() == abc);
+    assert(abc->getParent() == abb);
+    assert(abc->getLeft() == nullptr);
+    assert(abc->getRight() == def);
+
+    auto ddf = result->addNode("Ddf");
+    assert(ddf != nullptr);
+    assert(ddf->name == "Ddf");
+    assert(ddf->description == "");
+    assert(ddf->getParent() == nullptr);
+    assert(ddf->getLeft() == abc);
+    assert(ddf->getRight() == def);
+    assert(abc->getParent() == ddf);
+    assert(abc->getLeft() == abb);
+    assert(abc->getRight() == nullptr);
+    assert(def->getParent() == ddf);
+    assert(def->getLeft() == nullptr);
+    assert(def->getRight() == ghi);
+    /// Задача: дописать тест, проверяя малый правый и оба больших поворота
     /// https://gist.github.com/grayed
 }
 
@@ -276,4 +471,3 @@ int main()
 
     return 0;
 }
-
