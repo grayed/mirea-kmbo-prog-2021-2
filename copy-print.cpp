@@ -48,9 +48,14 @@ int main(int argc, char **argv) {
     for (auto i = 0; i < sizeof(arr)/sizeof(arr[0]); i++)
         arr[i] = rand();
     copy_array(arr, arr2, sizeof(arr)/sizeof(arr[0]));
+    cout<< "arr:"<<endl;
     print_array(arr, sizeof(arr)/sizeof(arr[0]));
+    cout<< "arr2:"<<endl;
     print_array(arr2, sizeof(arr2)/sizeof(arr2[0]));
-    find_min(arr, sizeof(arr)/sizeof(arr[0]));
-    find_min(arr2, sizeof(arr2)/sizeof(arr2[0]));
+    cout<< "min in arr:"<<find_min(arr, sizeof(arr)/sizeof(arr[0])) <<endl;
+    
+    cout<< "min in arr2:"<<find_min(arr2, sizeof(arr2)/sizeof(arr2[0])) <<endl;
+    
+    
     return 0;
 }
