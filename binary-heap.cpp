@@ -8,6 +8,42 @@ template<class T>
 class HeapOverArray {
     std::vector<T> v;
 
+    //ñêðûòûé èíòåðôåéñ
+    void HeapMaxify(size_t ind, size_t size = v.size())
+    {
+
+        //https://habr.com/ru/post/587228/
+
+        //îïðåäåëÿåì ëåâûé è ïðàâûé äî÷åðíèè óçëû
+        size_t  left   = 2 * ind
+                ,right = left + 1;
+
+        //ìàêñèìàëüíîå, êàê ìû äóìàåì, çíà÷åíèå
+        size_t largest = ind;
+
+        //åñëè ëåâûé äî÷åðíèé óçåë áîëüøå ÷åì êîðåíü
+        //ïîääåðåâà(êîðåíü ñ èíäåêñîì largest)
+        //òî ìû èçìåíÿåì largest íà èíäåêñ ëåâîãî
+        //èëè ïðàâîãî äî÷åðíåãî óçëà
+        if (left < size && v[left] > v[largest]) {
+            largest = left;
+        }
+        if (right < size && v[right] > v[largest]) {
+            largest = right;
+        }
+
+        //åñëè âñ¸-òàêè çíà÷åíèå èçíà÷àëüíî ïðîâåðÿåìîãî 
+        //óçëà ñ èíäåêñîì i íå ÿâëÿåòñÿ ñàìûì áîëüøèì
+        //òî ïðîâåðÿåìûé óçåë è óçåë ñ áîëüøèì çíà÷åíèåì ìåíÿþòñÿ ìåñòàìè
+        if (largest != ind) {
+            std::swap(v, ind, largest);
+
+            //Ðåêóðñèâíî âûçûâàåì ôóíêöèþ, ÷òîáû â ñëó÷àå ÷åãî
+            //îòïðàâèòü ýëåìåíò íèæå ïî ïèðàìèäå
+            HeapMaxify(largest, size);
+        }
+    }
+
 public:
     HeapOverArray() {}
     HeapOverArray(const std::vector<T>& initv) : v(initv) {}    /// Òðåáóåòñÿ, ÷òîáû ìàññèâ áûë çàðàíåå óïîðÿäî÷åí
@@ -28,17 +64,18 @@ public:
                 v.push_back(o);
                 return true;
             }
+            else if (v[0] >= o)
+                for (int i = 0; i < pos; i++)
+                    if (v[i] == o) return false;
 
             size_t parent_pos = (pos + 1) / 2 - 1;
 
-            while (parent_pos >= 0 && pos > 0) {
-                if (v[pos] > v[parent_pos])
-                {
-                    swap(v.at(pos), v.at(parent_pos));
-                }
+            while (o > v[parent_pos] && pos != 0) {
+                std::swap(v.at(pos), v.at(parent_pos));
                 pos = parent_pos;
                 parent_pos = (pos + 1) / 2 - 1;
             }
+            return true;
         }
 
     /// ÇÀÄÀ×È, ÷.2
@@ -51,21 +88,27 @@ public:
     {
         auto it = std::find(v.begin(), v.end(), o); //âîçâðàùàåì èòåðàòîð íà íóæíûé ýëåìåíò
 
-        if (it != v.end()) //óäàëÿåì íå ïîñëåäíèé ýëåìåíò
+        if (it != o) { //òàêîãî ýëåìåíòà íåò
+            return false;
+        }
+        else if (it != v.end()) //óäàëÿåì íå ïîñëåäíèé ýëåìåíò
         {
             //ïðîñòî ìåíÿåì íàø ýëåìåíò ñ ïîñëåäíèì ìåñòàìè è óäàëÿåì
             std::swap(it, v.rbegin());
             v.pop_back();
             v.shrink_to_fit(); //îáðåçàëè ìàññèâ
 
-            //âîññòàíàâëèâàåì ïîðÿäîê ???
-
-            std::sort_heap(v.begin(), v.end())
+            //âîññòàíàâëèâàåì ïîðÿäîê ??
 
             
         }
-            v.pop_back(); 
+        else //ïîñëåäíèé ýëåìåíò
+        {
+            v.pop_back();
             v.shrink_to_fit(); //î÷èùàåì íåèñïîëüçîâàííîå ïðîñòðàíñòâî
+            return true;
+        }
+            
     }
 
     class iterator {
@@ -86,6 +129,23 @@ public:
         ///
 
         iterator& operator++() {
+            size_t size = ++idx;
+            if (2 * size + 1 > v->size()) {
+                while (size % 2 != 0) {
+                    size = size / 2;
+                }
+                if (!(size - 1))   
+                    v = nullptr;
+                size = size / 2;
+            }
+            else {
+                size = 2 * size + 1;
+                while (2 * size + 2 <= v->size()) {
+                    while (size % 2 != 0) {
+                        size = *2;
+                    }
+                }
+            }
             /// 1. Óçíà¸ì âûñîòó ýëåìåíòà
             /// 2. Óçíà¸ì, ñëåâà ìû èëè ñïðàâà
 
