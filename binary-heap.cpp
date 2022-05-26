@@ -8,42 +8,6 @@ template<class T>
 class HeapOverArray {
     std::vector<T> v;
 
-    //ñêðûòûé èíòåðôåéñ
-    void HeapMaxify(size_t ind, size_t size = v.size())
-    {
-
-        //https://habr.com/ru/post/587228/
-
-        //îïðåäåëÿåì ëåâûé è ïðàâûé äî÷åðíèè óçëû
-        size_t  left   = 2 * ind
-                ,right = left + 1;
-
-        //ìàêñèìàëüíîå, êàê ìû äóìàåì, çíà÷åíèå
-        size_t largest = ind;
-
-        //åñëè ëåâûé äî÷åðíèé óçåë áîëüøå ÷åì êîðåíü
-        //ïîääåðåâà(êîðåíü ñ èíäåêñîì largest)
-        //òî ìû èçìåíÿåì largest íà èíäåêñ ëåâîãî
-        //èëè ïðàâîãî äî÷åðíåãî óçëà
-        if (left < size && v[left] > v[largest]) {
-            largest = left;
-        }
-        if (right < size && v[right] > v[largest]) {
-            largest = right;
-        }
-
-        //åñëè âñ¸-òàêè çíà÷åíèå èçíà÷àëüíî ïðîâåðÿåìîãî 
-        //óçëà ñ èíäåêñîì i íå ÿâëÿåòñÿ ñàìûì áîëüøèì
-        //òî ïðîâåðÿåìûé óçåë è óçåë ñ áîëüøèì çíà÷åíèåì ìåíÿþòñÿ ìåñòàìè
-        if (largest != ind) {
-            std::swap(v, ind, largest);
-
-            //Ðåêóðñèâíî âûçûâàåì ôóíêöèþ, ÷òîáû â ñëó÷àå ÷åãî
-            //îòïðàâèòü ýëåìåíò íèæå ïî ïèðàìèäå
-            HeapMaxify(largest, size);
-        }
-    }
-
 public:
     HeapOverArray() {}
     HeapOverArray(const std::vector<T>& initv) : v(initv) {}    /// Òðåáóåòñÿ, ÷òîáû ìàññèâ áûë çàðàíåå óïîðÿäî÷åí
