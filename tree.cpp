@@ -102,10 +102,7 @@ public:
     Node* operator->() { return node; }
     const Node* operator->() const { return node; }
     
-    /// TreeIterator it;  ++it      it++
-    
-    TreeIterator& operator++() 
-    {        /// префиксный   ++it
+    TreeIterator& operator++() {
         if (node->right) {
             node = node->right->findMin();
         }
@@ -117,7 +114,7 @@ public:
                 node = node->parent;
             }
             else {
-                node = nullptr; // end, root was reached from right tree
+                node = nullptr; 
             }
         }
         else {
@@ -126,7 +123,7 @@ public:
         return *this;
     }
     
-    TreeIterator operator++(int) {      /// постфиксный   it++
+    TreeIterator operator++(int) {
         TreeIterator old(node);
         ++*this;
         return old;
@@ -144,7 +141,7 @@ public:
                 node = node->parent;
             }
             else {
-                node = nullptr; // end, root was reached from left tree
+                node = nullptr; // Конец, корень был достигнут из левого дерева
             }
         }
         else {
@@ -338,6 +335,7 @@ public:
     void deleteNode(Node* node) {
         Node* closestMin = node->left;
 
+        // Найти максимальный узел в левом поддереве удаляемого узла
         for (auto temp = node->left; temp;) {
             closestMin = temp; 
             temp = temp->right;
@@ -347,6 +345,7 @@ public:
         if (closestMin) {
             closest = closestMin;
 
+            // Изменение удаляемого узла на максимальный узел в левом поддереве
             closestMin->right = node->right;
             closestMin->left = nullptr;
             if (closestMin->parent != node) {
@@ -370,7 +369,7 @@ public:
 
         Node* parent = node->parent;
         if (parent) {
-            // find where is node (left or right subtree)
+            // Поиск связи
             auto compareWithParent = node->name.compare(parent->name);
             if (compareWithParent < 0) {
                 parent->left = closest;
@@ -424,53 +423,7 @@ public:
         return TreeIterator();
     }
 };
-void testDeleteNode() {
-    Tree* result = new Tree();
-    for (int i = 0; i < 26; i++) {
-        result->addNode(string(1, 'a' + i));
-    }
-    Node* deletedNode = result->findNode("z");
-    assert(deletedNode != nullptr);
-    result->deleteNode(deletedNode);
-    for (auto it = result->begin(); it != result->end(); it++) {
-        assert(it->name != "z");
-        if (it->getLeft() != nullptr) {
-            assert(it->name > it->getLeft()->name);
-        }
-        if (it->getRight() != nullptr) {
-            assert(it->name < it->getRight()->name);
-        }
-    }
-    for (int i = 0; i < 25; i++) {
-        string s(1, 'a' + i);
-        Node* deletedNode = result->findNode(s);
-        assert(deletedNode != nullptr);
-        result->deleteNode(deletedNode);
-        for (auto it = result->begin(); it != result->end(); it++) {
-            assert(it->name != s);
-            if (it->getLeft() != nullptr) {
-                assert(it->name > it->getLeft()->name);
-            }
-            if (it->getRight() != nullptr) {
-                assert(it->name < it->getRight()->name);
-            }
-        }
-    }
-    assert(result->begin() == nullptr);
-    result->addNode("z");
-    assert(result->begin()->name == "z");
-}
 
-void testIterator() {
-    Tree* result = new Tree();
-    for (int i = 0; i < 26; i++) {
-        result->addNode(string(1, 'a' + i));
-    }
-    char tempElement = 'a';
-    for (auto it = result->begin(); it != result->end(); it++) {
-        assert(string(1, tempElement) == it->name);
-        tempElement++;
-    }
 void testAddNode() {
     Tree *result = new Tree();
 
@@ -602,13 +555,58 @@ void testAddNode() {
     assert(acd->getRight() == ade);
     assert(acd->getLeft() == abc);
 }
-
-
+// Тест удаления узла
+void testDeleteNode() {
+    Tree* result = new Tree();
+    for (int i = 0; i < 26; i++) {
+        result->addNode(string(1, 'a' + i));
+    }
+    Node* deletedNode = result->findNode("z");
+    assert(deletedNode != nullptr);
+    result->deleteNode(deletedNode);
+    for (auto it = result->begin(); it != result->end(); it++) {
+        assert(it->name != "z");
+        if (it->getLeft() != nullptr) {
+            assert(it->name > it->getLeft()->name);
+        }
+        if (it->getRight() != nullptr) {
+            assert(it->name < it->getRight()->name);
+        }
+    }
+    for (int i = 0; i < 25; i++) {
+        string s(1, 'a' + i);
+        Node* deletedNode = result->findNode(s);
+        assert(deletedNode != nullptr);
+        result->deleteNode(deletedNode);
+        for (auto it = result->begin(); it != result->end(); it++) {
+            assert(it->name != s);
+            if (it->getLeft() != nullptr) {
+                assert(it->name > it->getLeft()->name);
+            }
+            if (it->getRight() != nullptr) {
+                assert(it->name < it->getRight()->name);
+            }
+        }
+    }
+    assert(result->begin() == nullptr);
+    result->addNode("z");
+    assert(result->begin()->name == "z");
+}
+ // Тест итератора через функцию
+void testIterator() {
+    Tree* result = new Tree();
+    for (int i = 0; i < 26; i++) {
+        result->addNode(string(1, 'a' + i));
+    }
+    char tempElement = 'a';
+    for (auto it = result->begin(); it != result->end(); it++) {
+        assert(string(1, tempElement) == it->name);
+        tempElement++;
+    }
 }
  
 int main() {
     testAddNode();
-    
     testDeleteNode();
     testIterator();
 
