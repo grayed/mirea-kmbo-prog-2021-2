@@ -424,7 +424,53 @@ public:
         return TreeIterator();
     }
 };
+void testDeleteNode() {
+    Tree* result = new Tree();
+    for (int i = 0; i < 26; i++) {
+        result->addNode(string(1, 'a' + i));
+    }
+    Node* deletedNode = result->findNode("z");
+    assert(deletedNode != nullptr);
+    result->deleteNode(deletedNode);
+    for (auto it = result->begin(); it != result->end(); it++) {
+        assert(it->name != "z");
+        if (it->getLeft() != nullptr) {
+            assert(it->name > it->getLeft()->name);
+        }
+        if (it->getRight() != nullptr) {
+            assert(it->name < it->getRight()->name);
+        }
+    }
+    for (int i = 0; i < 25; i++) {
+        string s(1, 'a' + i);
+        Node* deletedNode = result->findNode(s);
+        assert(deletedNode != nullptr);
+        result->deleteNode(deletedNode);
+        for (auto it = result->begin(); it != result->end(); it++) {
+            assert(it->name != s);
+            if (it->getLeft() != nullptr) {
+                assert(it->name > it->getLeft()->name);
+            }
+            if (it->getRight() != nullptr) {
+                assert(it->name < it->getRight()->name);
+            }
+        }
+    }
+    assert(result->begin() == nullptr);
+    result->addNode("z");
+    assert(result->begin()->name == "z");
+}
 
+void testIterator() {
+    Tree* result = new Tree();
+    for (int i = 0; i < 26; i++) {
+        result->addNode(string(1, 'a' + i));
+    }
+    char tempElement = 'a';
+    for (auto it = result->begin(); it != result->end(); it++) {
+        assert(string(1, tempElement) == it->name);
+        tempElement++;
+    }
 void testAddNode() {
     Tree *result = new Tree();
 
@@ -557,57 +603,12 @@ void testAddNode() {
     assert(acd->getLeft() == abc);
 }
 
-void testDeleteNode() {
-    Tree* result = new Tree();
-    for (int i = 0; i < 26; i++) {
-        result->addNode(string(1, 'a' + i));
-    }
-    Node* deletedNode = result->findNode("z");
-    assert(deletedNode != nullptr);
-    result->deleteNode(deletedNode);
-    for (auto it = result->begin(); it != result->end(); it++) {
-        assert(it->name != "z");
-        if (it->getLeft() != nullptr) {
-            assert(it->name > it->getLeft()->name);
-        }
-        if (it->getRight() != nullptr) {
-            assert(it->name < it->getRight()->name);
-        }
-    }
-    for (int i = 0; i < 25; i++) {
-        string s(1, 'a' + i);
-        Node* deletedNode = result->findNode(s);
-        assert(deletedNode != nullptr);
-        result->deleteNode(deletedNode);
-        for (auto it = result->begin(); it != result->end(); it++) {
-            assert(it->name != s);
-            if (it->getLeft() != nullptr) {
-                assert(it->name > it->getLeft()->name);
-            }
-            if (it->getRight() != nullptr) {
-                assert(it->name < it->getRight()->name);
-            }
-        }
-    }
-    assert(result->begin() == nullptr);
-    result->addNode("z");
-    assert(result->begin()->name == "z");
-}
 
-void testIterator() {
-    Tree* result = new Tree();
-    for (int i = 0; i < 26; i++) {
-        result->addNode(string(1, 'a' + i));
-    }
-    char tempElement = 'a';
-    for (auto it = result->begin(); it != result->end(); it++) {
-        assert(string(1, tempElement) == it->name);
-        tempElement++;
-    }
 }
  
 int main() {
     testAddNode();
+    
     testDeleteNode();
     testIterator();
 
